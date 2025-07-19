@@ -1,0 +1,4 @@
+{
+	"dockerImageName": "energyhun24/bandwidth-hero-proxy-go",
+	"version": "1.0.0"
+}
