@@ -92,8 +92,8 @@ export BHP_USE_BEST_COMPRESSION_FORMAT=true
 
 ## Troubleshooting
 
-**Build issues**: Install libvips dev headers and ensure `CGO_ENABLED=1`
-**Images not compressing**: Check source URL accessibility and image format support
-**URL not provided**: Ensure `url` query is included in the request, if still gives an error, try URL encoding the URL
-**High memory usage**: Reduce `BHP_MAX_CONCURRENCY` or set `MALLOC_ARENA_MAX=2`
-**Timeouts**: Increase `BHP_EXTERNAL_REQUEST_TIMEOUT`
+- **Build issues**: Install libvips dev headers and ensure `CGO_ENABLED=1`
+- **Images not compressing**: Check source URL accessibility and image format support
+- **URL not provided**: Ensure `url` query is included in the request, if still gives an error, try URL encoding the URL
+- **High memory usage**: Reduce `BHP_MAX_CONCURRENCY` or set `MALLOC_ARENA_MAX=2`
+- **Timeouts**: Increase `BHP_EXTERNAL_REQUEST_TIMEOUT`
