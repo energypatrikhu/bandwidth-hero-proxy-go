@@ -1,0 +1,5 @@
+services:
+  bandwidth-hero-proxy-go:
+    container_name: bandwidth-hero-proxy-go
+    build: .
+    network_mode: bridge
