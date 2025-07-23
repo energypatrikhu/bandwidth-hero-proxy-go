@@ -6,18 +6,26 @@ import (
 	"strings"
 )
 
-func FaviconHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "image/x-icon")
-	w.WriteHeader(http.StatusOK)
-
-	// Serve a blank favicon
-	if _, err := w.Write([]byte{}); err != nil {
-		fmt.Println("Error writing favicon response:", err)
-	}
-}
-
 func ProxyHandler(w http.ResponseWriter, r *http.Request) {
 	var err error
+
+	if r.Method != http.MethodGet { // Only allow GET requests
+		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
+		fmt.Println("Error: Method Not Allowed")
+		return
+	}
+
+	if r.URL.Path == "/favicon.ico" { // Handle favicon requests
+		w.Header().Set("Content-Type", "image/x-icon")
+		w.WriteHeader(http.StatusOK)
+
+		// Serve a blank favicon
+		if _, err := w.Write([]byte{}); err != nil {
+			fmt.Println("Error writing favicon response:", err)
+		}
+
+		return
+	}
 
 	bhpParams, err := ParseParams(r)
 	if err != nil {
