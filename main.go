@@ -39,12 +39,15 @@ func main() {
 	})
 	defer vips.Shutdown()
 
-	http.HandleFunc("/", utils.ProxyHandler)
-	http.HandleFunc("/favicon.ico", utils.FaviconHandler)
+	server := &http.Server{
+		Addr:    fmt.Sprintf(":%d", utils.BHP_PORT),
+		Handler: http.HandlerFunc(utils.ProxyHandler),
+	}
 
 	fmt.Println("Server is running on port", utils.BHP_PORT)
-	if err := http.ListenAndServe(fmt.Sprintf(":%d", utils.BHP_PORT), nil); err != nil {
+	if err := server.ListenAndServe(); err != nil {
 		fmt.Println("Error starting server:", err)
+		return
 	}
 	fmt.Println("Server stopped")
 }
