@@ -4,25 +4,12 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"regexp"
 	"strings"
 	"time"
 )
 
-func RegexMatch(s, pattern string) bool {
-	re := regexp.MustCompile("(?i)" + pattern)
-	return re.MatchString(s)
-}
-
 func RequestImage(url string, headers http.Header) (*ImageResponse, error) {
 	requestHeaders := map[string]string{}
-	// additionalHeaders := map[string]string{
-	// 	"accept-encoding": "*",
-	// 	"accept":          "*/*",
-	// 	"cache-control":   "no-cache",
-	// 	"pragma":          "no-cache",
-	// 	"connection":      "close",
-	// }
 
 reqHeaderLoop:
 	for headerKey, headerValue := range headers {
@@ -32,15 +19,14 @@ reqHeaderLoop:
 			continue // Skip Host header
 		}
 
-		for _, value := range BHP_EXTERNAL_REQUEST_OMIT_HEADERS {
-			if RegexMatch(headerKey, value) {
+		for _, omittedHeader := range omittedHeadersRegexes {
+			if omittedHeader.MatchString(headerKey) {
 				continue reqHeaderLoop
 			}
 		}
 
 		requestHeaders[headerKey] = headerValue[0]
 	}
-	// maps.Copy(requestHeaders, additionalHeaders)
 
 	duration, err := time.ParseDuration(BHP_EXTERNAL_REQUEST_TIMEOUT)
 	if err != nil {

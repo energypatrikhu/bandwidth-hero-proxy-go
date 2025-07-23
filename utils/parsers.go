@@ -3,7 +3,6 @@ package utils
 import (
 	"fmt"
 	"net/http"
-	"regexp"
 )
 
 func ParseParams(r *http.Request) (*BhpParams, error) {
@@ -13,8 +12,7 @@ func ParseParams(r *http.Request) (*BhpParams, error) {
 	if url == "" {
 		return nil, fmt.Errorf("Missing required parameter: url")
 	}
-	re := regexp.MustCompile(`(?i)^http://1\.1\.\d+\.\d+/bmi/(https?://)?`)
-	url = re.ReplaceAllString(query.Get("url"), "http://")
+	url = inputUrlRegex.ReplaceAllString(query.Get("url"), "http://")
 
 	format := "webp" // Set webp as default format
 	if query.Get("jpg") == "1" {
