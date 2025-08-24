@@ -45,10 +45,14 @@ func ProxyHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	isAnimated := strings.Contains(imageResponse.ResponseHeaders.Get("Content-Type"), "image/gif")
+	originalImageSize := len(imageResponse.Data)
 
+	currentQuality := bhpParams.Quality
 	var compressedImg *CompressedImageResponse
 	if BHP_USE_BEST_COMPRESSION_FORMAT && !isAnimated {
 		compressedImg, err = CompressImageToBestFormat(imageResponse.Data, bhpParams.Greyscale, bhpParams.Quality)
+	} else if BHP_AUTO_DECREMENT_QUALITY && !isAnimated {
+		compressedImg, currentQuality, err = CompressImageWithAutoQualityDecrement(imageResponse.Data, bhpParams.Format, bhpParams.Greyscale, bhpParams.Quality, originalImageSize)
 	} else {
 		compressedImg, err = CompressImage(imageResponse.Data, bhpParams.Format, bhpParams.Greyscale, bhpParams.Quality)
 	}
@@ -56,8 +60,8 @@ func ProxyHandler(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Location", bhpParams.Url)
 		w.WriteHeader(http.StatusFound)
 
-		fmt.Printf("\n> Params:\n > URL: %s\n > Format: %s\n > Quality: %d\n > Greyscale: %t\n> Info:\n > Error: %s\n > Action: Redirecting to original URL\n",
-			bhpParams.Url, bhpParams.Format, bhpParams.Quality, bhpParams.Greyscale, err.Error())
+		fmt.Printf("\n> Params:\n > URL: %s\n > Format: %s\n > Quality: %d (%d)\n > Greyscale: %t\n> Info:\n > Error: %s\n > Action: Redirecting to original URL\n",
+			bhpParams.Url, bhpParams.Format, bhpParams.Quality, currentQuality, bhpParams.Greyscale, err.Error())
 		return
 	}
 
@@ -65,21 +69,20 @@ func ProxyHandler(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Location", bhpParams.Url)
 		w.WriteHeader(http.StatusFound)
 
-		fmt.Printf("\n> Params:\n > URL: %s\n > Format: %s\n > Quality: %d\n > Greyscale: %t\n> Info:\n > Error: Could not compress image into smaller size than original\n > Action: Redirecting to original URL\n",
-			bhpParams.Url, bhpParams.Format, bhpParams.Quality, bhpParams.Greyscale)
+		fmt.Printf("\n> Params:\n > URL: %s\n > Format: %s\n > Quality: %d (%d)\n > Greyscale: %t\n> Info:\n > Error: Could not compress image into smaller size than original\n > Action: Redirecting to original URL\n",
+			bhpParams.Url, bhpParams.Format, bhpParams.Quality, currentQuality, bhpParams.Greyscale)
 		return
 	}
 
 	compressedImageSize := len(compressedImg.Data)
-	originalImageSize := len(imageResponse.Data)
 	savedSize := originalImageSize - compressedImageSize
 
 	if !BHP_FORCE_FORMAT && savedSize <= 0 {
 		w.Header().Set("Location", bhpParams.Url)
 		w.WriteHeader(http.StatusFound)
 
-		fmt.Printf("\n> Params:\n > URL: %s\n > Format: %s\n > Quality: %d\n > Greyscale: %t\n> Info:\n > Error: Compressed image is not smaller than original\n > Action: Redirecting to original URL\n",
-			bhpParams.Url, bhpParams.Format, bhpParams.Quality, bhpParams.Greyscale)
+		fmt.Printf("\n> Params:\n > URL: %s\n > Format: %s\n > Quality: %d (%d)\n > Greyscale: %t\n> Info:\n > Error: Compressed image is not smaller than original\n > Action: Redirecting to original URL\n",
+			bhpParams.Url, bhpParams.Format, bhpParams.Quality, currentQuality, bhpParams.Greyscale)
 		return
 	}
 
@@ -144,8 +147,8 @@ func ProxyHandler(w http.ResponseWriter, r *http.Request) {
 		formatInfo = fmt.Sprintf(" (%s)", strings.Join(formatModifiers, ", "))
 	}
 
-	fmt.Printf("\n> Params:\n > URL: %s\n > Format: %s\n > Quality: %d\n > Greyscale: %t\n> Request headers:\n%s> Response headers:\n%s> Info:\n > Using format: %s%s\n > Original size: %s\n > Compressed size: %s ( %s )\n > Saved size: %s ( %s )\n",
-		bhpParams.Url, bhpParams.Format, bhpParams.Quality, bhpParams.Greyscale,
+	fmt.Printf("\n> Params:\n > URL: %s\n > Format: %s\n > Quality: %d (%d)\n > Greyscale: %t\n> Request headers:\n%s> Response headers:\n%s> Info:\n > Using format: %s%s\n > Original size: %s\n > Compressed size: %s ( %s )\n > Saved size: %s ( %s )\n",
+		bhpParams.Url, bhpParams.Format, bhpParams.Quality, currentQuality, bhpParams.Greyscale,
 		reqHeaders, resHeaders, compressedImg.Format, formatInfo,
 		originalImageSizeStr,
 		compressedImageSizeStr, fmt.Sprintf("%.2f%%", compressedImageSizePerc),

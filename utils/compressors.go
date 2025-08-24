@@ -56,6 +56,31 @@ func CompressImage(imgData []byte, format string, greyscale bool, quality int) (
 	return &CompressedImageResponse{Data: compressedData, Format: format}, nil
 }
 
+func CompressImageWithAutoQualityDecrement(imgData []byte, format string, greyscale bool, quality int, originalSize int) (*CompressedImageResponse, int, error) {
+	currentQuality := quality
+	var compressedImg *CompressedImageResponse
+	var err error
+
+	// Try compressing the image, decreasing quality by 5 each time until we find a smaller size or reach quality of 80
+	for {
+		compressedImg, err = CompressImage(imgData, format, greyscale, currentQuality)
+		if err != nil {
+			return nil, currentQuality, fmt.Errorf("failed to compress image: %w", err)
+		}
+
+		if len(compressedImg.Data) < originalSize {
+			return compressedImg, currentQuality, nil // Return the first compressed image that is smaller than the original
+		}
+
+		if currentQuality < 75 {
+			// If no compression was better, return the original image
+			return &CompressedImageResponse{Data: imgData, Format: ""}, currentQuality, nil
+		}
+
+		currentQuality -= 5 // Decrease quality by 5 and try again
+	}
+}
+
 func CompressImageToBestFormat(imgData []byte, greyscale bool, quality int) (*CompressedImageResponse, error) {
 	// Compress to webp and jpeg concurrently using goroutines
 	type result struct {
@@ -87,7 +112,7 @@ func CompressImageToBestFormat(imgData []byte, greyscale bool, quality int) (*Co
 	var webpResp, jpegResp *CompressedImageResponse
 	var errWebp, errJpeg error
 
-	for i := 0; i < 2; i++ {
+	for range 2 {
 		select {
 		case res := <-webpCh:
 			webpResp = res.resp

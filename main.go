@@ -16,6 +16,7 @@ func main() {
 	fmt.Println(" > BHP_PORT:", utils.BHP_PORT)
 	fmt.Println(" > BHP_MAX_CONCURRENCY:", utils.BHP_MAX_CONCURRENCY)
 	fmt.Println(" > BHP_FORCE_FORMAT:", utils.BHP_FORCE_FORMAT)
+	fmt.Println(" > BHP_AUTO_DECREMENT_QUALITY:", utils.BHP_AUTO_DECREMENT_QUALITY)
 	fmt.Println(" > BHP_USE_BEST_COMPRESSION_FORMAT:", utils.BHP_USE_BEST_COMPRESSION_FORMAT)
 	fmt.Println(" > BHP_EXTERNAL_REQUEST_TIMEOUT:", utils.BHP_EXTERNAL_REQUEST_TIMEOUT)
 	fmt.Println(" > BHP_EXTERNAL_REQUEST_RETRIES:", utils.BHP_EXTERNAL_REQUEST_RETRIES)
@@ -24,6 +25,11 @@ func main() {
 
 	if utils.BHP_FORCE_FORMAT && utils.BHP_USE_BEST_COMPRESSION_FORMAT {
 		fmt.Println("Error: BHP_FORCE_FORMAT and BHP_USE_BEST_COMPRESSION_FORMAT cannot be both enabled at the same time.")
+		return
+	}
+
+	if utils.BHP_USE_BEST_COMPRESSION_FORMAT && utils.BHP_AUTO_DECREMENT_QUALITY {
+		fmt.Println("Error: BHP_USE_BEST_COMPRESSION_FORMAT and BHP_AUTO_DECREMENT_QUALITY cannot be both enabled at the same time.")
 		return
 	}
 

@@ -20,13 +20,13 @@ func ParseParams(r *http.Request) (*BhpParams, error) {
 	}
 
 	greyscale := false // Disable greyscale by default
-	if query.Get("greyscale") == "1" {
+	if query.Get("bw") == "1" {
 		greyscale = true
 	}
 
 	quality := 80 // Set default quality to 80
-	if query.Get("quality") != "" {
-		fmt.Sscanf(query.Get("quality"), "%d", &quality)
+	if query.Get("l") != "" {
+		fmt.Sscanf(query.Get("l"), "%d", &quality)
 	}
 
 	params := &BhpParams{
