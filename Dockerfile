@@ -10,7 +10,7 @@ COPY go.mod go.sum ./
 RUN go mod download
 
 COPY . .
-RUN go build -o /bandwidth-hero-proxy -ldflags="-s -w" main.go
+RUN go build -o /bandwidth-hero-proxy -x -ldflags="-s -w" main.go
 
 FROM alpine:latest AS runtime
 
