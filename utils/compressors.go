@@ -72,7 +72,7 @@ func CompressImageWithAutoQualityDecrement(imgData []byte, format string, greysc
 			return compressedImg, currentQuality, nil // Return the first compressed image that is smaller than the original
 		}
 
-		if currentQuality < 75 {
+		if currentQuality < quality-10 { // Stop if we've decreased quality by 10
 			// If no compression was better, return the original image
 			return &CompressedImageResponse{Data: imgData, Format: ""}, currentQuality, nil
 		}
