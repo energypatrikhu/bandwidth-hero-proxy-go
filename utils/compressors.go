@@ -61,7 +61,7 @@ func CompressImageWithAutoQualityDecrement(imgData []byte, format string, greysc
 	var compressedImg *CompressedImageResponse
 	var err error
 
-	// Try compressing the image, decreasing quality by 5 each time until we find a smaller size or reach quality of 80
+	// Try compressing the image, decreasing quality by 5 each time until we find a smaller size or reach quality - 10
 	for {
 		compressedImg, err = CompressImage(imgData, format, greyscale, currentQuality)
 		if err != nil {
