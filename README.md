@@ -68,7 +68,7 @@ Environment variables:
 | `BHP_PORT` | `80` | Server port |
 | `BHP_MAX_CONCURRENCY` | Number of CPU cores | Max concurrent tasks |
 | `BHP_FORCE_FORMAT` | `false` | Force selected format, even if the output is bigger |
-| `BHP_AUTO_DECREMENT_QUALITY` | `true` | Auto decrement quality if output is larger than input |
+| `BHP_AUTO_DECREMENT_QUALITY` | `false` | Auto decrement quality if output is larger than input |
 | `BHP_USE_BEST_COMPRESSION_FORMAT` | `false` | Automatically choose WebP or JPEG based on compression ratio |
 | `BHP_EXTERNAL_REQUEST_TIMEOUT` | `60s` | External request timeout |
 | `BHP_EXTERNAL_REQUEST_RETRIES` | `5` | Number of retries for external requests |
