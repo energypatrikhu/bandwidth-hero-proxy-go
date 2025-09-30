@@ -2,7 +2,7 @@
 
 Image compression proxy server that reduces bandwidth usage by compressing images on-the-fly.
 
-> Typescript version: [bandwidth-hero-proxy](https://github.com/energypatrikhu/bandwidth-hero-proxy)
+> Typescript version: [bandwidth-hero-proxy](https://github.com/energypatrikhu/bandwidth-hero-proxy) (no longer maintained)
 
 ## Features
 
