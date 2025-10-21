@@ -4,9 +4,8 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/davidbyttow/govips/v2/vips"
-
 	"github.com/energypatrikhu/bandwidth-hero-proxy-go/utils"
+	"github.com/energypatrikhu/bandwidth-hero-proxy-go/vips"
 )
 
 func main() {
@@ -33,15 +32,15 @@ func main() {
 		return
 	}
 
-	vips.LoggingSettings(nil, 0) // Suppress vips logs
+	vips.SetLogging(nil, 0) // Suppress vips logs
 	vips.Startup(&vips.Config{
 		ConcurrencyLevel: utils.BHP_MAX_CONCURRENCY, // Set concurrency level to BHP_MAX_CONCURRENCY
 		MaxCacheFiles:    0,                         // Set max cache files to 0 (no limit)
 		MaxCacheMem:      0,                         // Set max cache memory to 0 (no limit)
 		MaxCacheSize:     0,                         // Set max cache size to 0 (no limit)
-		CacheTrace:       false,                     // Disable cache tracing
 		ReportLeaks:      false,                     // Disable leak reporting
-		CollectStats:     false,                     // Disable stats collection
+		CacheTrace:       false,                     // Disable cache tracing
+		VectorEnabled:    true,                      // Enable vector support
 	})
 	defer vips.Shutdown()
 

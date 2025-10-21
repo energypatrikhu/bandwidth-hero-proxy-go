@@ -3,6 +3,7 @@ package utils
 import (
 	"fmt"
 	"net/http"
+	"slices"
 	"strings"
 )
 
@@ -43,18 +44,18 @@ func ProxyHandler(w http.ResponseWriter, r *http.Request) {
 			bhpParams.Url, bhpParams.Format, bhpParams.Quality, bhpParams.Greyscale, err.Error())
 		return
 	}
-
-	isAnimated := strings.Contains(imageResponse.ResponseHeaders.Get("Content-Type"), "image/gif")
+	imageFormat := imageResponse.ResponseHeaders.Get("Content-Type")
+	isAnimated := strings.Contains(imageFormat, "image/gif")
 	originalImageSize := len(imageResponse.Data)
 
 	currentQuality := bhpParams.Quality
 	var compressedImg *CompressedImageResponse
 	if BHP_USE_BEST_COMPRESSION_FORMAT && !isAnimated {
-		compressedImg, err = CompressImageToBestFormat(imageResponse.Data, bhpParams.Greyscale, bhpParams.Quality)
+		compressedImg, err = CompressImageToBestFormat(imageResponse.Data, imageFormat, bhpParams.Greyscale, bhpParams.Quality)
 	} else if BHP_AUTO_DECREMENT_QUALITY && !isAnimated {
-		compressedImg, currentQuality, err = CompressImageWithAutoQualityDecrement(imageResponse.Data, bhpParams.Format, bhpParams.Greyscale, bhpParams.Quality, originalImageSize)
+		compressedImg, currentQuality, err = CompressImageWithAutoQualityDecrement(imageResponse.Data, imageFormat, bhpParams.Format, bhpParams.Greyscale, bhpParams.Quality, originalImageSize)
 	} else {
-		compressedImg, err = CompressImage(imageResponse.Data, bhpParams.Format, bhpParams.Greyscale, bhpParams.Quality)
+		compressedImg, err = CompressImage(imageResponse.Data, imageFormat, bhpParams.Format, bhpParams.Greyscale, bhpParams.Quality)
 	}
 	if err != nil {
 		w.Header().Set("Location", bhpParams.Url)
@@ -89,8 +90,8 @@ func ProxyHandler(w http.ResponseWriter, r *http.Request) {
 	for headerKey, headerValue := range imageResponse.ResponseHeaders {
 		headerKey = strings.ToLower(headerKey)
 
-		if headerKey == "Transfer-Encoding" {
-			continue // Skip Content-Type and Content-Length headers
+		if slices.Contains([]string{"transfer-encoding", "content-encoding", "vary"}, strings.ToLower(headerKey)) {
+			continue
 		}
 
 		w.Header().Set(headerKey, headerValue[0]) // Set other headers from the original response

@@ -33,6 +33,11 @@ docker-compose up --build
 **Local development:**
 ```bash
 # Install libvips (Ubuntu/Debian: libvips-dev, macOS: brew install vips)
+# Generate vips bindings
+go install github.com/cshum/vipsgen/cmd/vipsgen@latest
+vipsgen -out ./vips
+
+# Build and run
 go mod download
 go build -o bandwidth-hero-proxy main.go
 ./bandwidth-hero-proxy

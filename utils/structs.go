@@ -1,6 +1,8 @@
 package utils
 
-import "net/http"
+import (
+	"net/http"
+)
 
 type BhpParams struct {
 	Url       string `json:"url"`

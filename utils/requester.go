@@ -1,6 +1,8 @@
 package utils
 
 import (
+	"bytes"
+	"compress/gzip"
 	"fmt"
 	"io"
 	"net/http"
@@ -34,7 +36,7 @@ reqHeaderLoop:
 	}
 
 	var resp *http.Response
-	var imgData []byte
+	var data []byte
 	var lastErr error
 
 	client := &http.Client{
@@ -73,11 +75,30 @@ reqHeaderLoop:
 			continue
 		}
 
-		imgData, err = io.ReadAll(resp.Body)
-		resp.Body.Close()
+		defer resp.Body.Close()
+		data, err = io.ReadAll(resp.Body)
+
 		if err != nil {
 			lastErr = err
 			continue
+		}
+
+		// Check for GZIP magic bytes (0x1f 0x8b) and decompress if needed
+		if len(data) >= 2 && data[0] == 0x1f && data[1] == 0x8b {
+			reader, err := gzip.NewReader(bytes.NewReader(data))
+			if err != nil {
+				lastErr = fmt.Errorf("failed to create gzip reader: %v", err)
+				continue
+			}
+
+			decompressed, err := io.ReadAll(reader)
+			reader.Close()
+			if err != nil {
+				lastErr = fmt.Errorf("failed to decompress gzip data: %v", err)
+				continue
+			}
+
+			data = decompressed
 		}
 
 		// Success
@@ -88,14 +109,13 @@ reqHeaderLoop:
 	if lastErr != nil {
 		return nil, lastErr
 	}
-
 	// Additional safety check - ensure we have valid response data
-	if resp == nil || imgData == nil {
+	if resp == nil || data == nil {
 		return nil, fmt.Errorf("no valid response received after %d attempts", BHP_EXTERNAL_REQUEST_RETRIES+1)
 	}
 
 	imageResponse := &ImageResponse{
-		Data:            imgData,
+		Data:            data,
 		RequestHeaders:  requestHeaders,
 		ResponseHeaders: resp.Header,
 	}
