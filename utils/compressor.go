@@ -144,7 +144,7 @@ func CompressImageToBestFormat(imageBytes []byte, imageFormat string, greyscale 
 		}
 	}
 
-	if errWebp != nil && errJpeg != nil {
+	if errWebp != nil || errJpeg != nil {
 		return nil, fmt.Errorf("failed to compress image:\n\t%w\n\t%w", errWebp, errJpeg)
 	}
 
