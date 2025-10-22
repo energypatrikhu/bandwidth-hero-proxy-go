@@ -1,8 +1,9 @@
 FROM golang:alpine AS builder
 
-WORKDIR /tmp/app-source
-
 # Install build dependencies and all vips optional dependencies
+RUN apk del --no-cache \
+  *libjpeg*
+
 RUN apk add --no-cache \
   build-base \
   pkgconfig \
@@ -14,7 +15,10 @@ RUN apk add --no-cache \
   autoconf \
   automake \
   libtool \
-  gettext-dev \
+  gobject-introspection-dev \
+  gi-docgen \
+  doxygen \
+  vala \
   glib-dev \
   expat-dev \
   tiff-dev \
@@ -42,7 +46,11 @@ RUN apk add --no-cache \
   libjxl-dev \
   cgif-dev \
   highway-dev \
-  libjpeg-turbo-dev
+  libjpeg-turbo-dev \
+  imagemagick-dev
+
+RUN apk add --no-cache --repository=http://dl-cdn.alpinelinux.org/alpine/edge/testing/ \
+  openslide-dev
 
 # Build vips from source
 RUN VIPS_VERSION=$(wget -qO- "https://api.github.com/repos/libvips/libvips/releases/latest" | grep -o '"tag_name": "v[^"]*"' | cut -d'"' -f4 | sed 's/^v//') && \
@@ -51,18 +59,20 @@ RUN VIPS_VERSION=$(wget -qO- "https://api.github.com/repos/libvips/libvips/relea
   cd /tmp/vips-source && \
   tar -xf vips.tar.xz && \
   cd vips-${VIPS_VERSION} && \
-  echo "Checking JPEG libraries before vips build:" && \
-  pkg-config --exists libjpeg && echo "libjpeg found" || echo "libjpeg not found" && \
-  pkg-config --exists libturbojpeg && echo "libturbojpeg found" || echo "libturbojpeg not found" && \
+  sed -i "s/value: 'auto',/value: 'enabled',/g" meson_options.txt && \
   PKG_CONFIG_PATH="/usr/lib/pkgconfig:/usr/local/lib/pkgconfig" \
   meson setup build \
     --buildtype=release \
     --prefix=/usr/local \
-    -Dintrospection=disabled \
+    -Ddocs=true \
+    -Dcpp-docs=true \
+    -Dintrospection=enabled \
     -Dmodules=enabled \
     -Dcplusplus=true \
-    -Djpeg=enabled \
-    -Djpeg-xl=enabled && \
+    -Dvapi=true \
+    -Dmatio=disabled \
+    -Dpdfium=disabled \
+    -Dnifti=disabled && \
   ninja -C build && \
   ninja -C build install && \
   ldconfig /usr/local/lib && \
@@ -71,24 +81,20 @@ RUN VIPS_VERSION=$(wget -qO- "https://api.github.com/repos/libvips/libvips/relea
 ENV PKG_CONFIG_PATH="/usr/lib/pkgconfig:/usr/local/lib/pkgconfig"
 ENV LD_LIBRARY_PATH="/usr/lib:/usr/local/lib"
 
-# Check JPEG library versions for debugging
-RUN ldconfig && \
-  pkg-config --modversion libjpeg || echo "No libjpeg pkg-config" && \
-  pkg-config --modversion libturbojpeg || echo "No libturbojpeg pkg-config" && \
-  ls -la /usr/lib/lib*jpeg* || echo "No jpeg libs in /usr/lib" && \
-  ls -la /usr/local/lib/lib*jpeg* || echo "No jpeg libs in /usr/local/lib"
+WORKDIR /tmp/app-source
 
-RUN go install github.com/cshum/vipsgen/cmd/vipsgen@latest
-RUN vipsgen -out ./vips
+RUN go install github.com/cshum/vipsgen/cmd/vipsgen@latest && \
+  vipsgen -out ./vips
 
 COPY go.mod go.sum ./
 RUN go mod download
 
 COPY . .
 
-ENV CGO_ENABLED=1
-ENV GOOS=linux
-ENV GOARCH=amd64
+ENV CGO_ENABLED=1 \
+  GOOS=linux \
+  GOARCH=amd64
+
 RUN go build -x -v -a -tags vips \
   -ldflags="-s -w -linkmode external" \
   -o /bandwidth-hero-proxy ./main.go
@@ -107,6 +113,8 @@ RUN apk add --no-cache \
   libwebp-tools \
   giflib \
   librsvg \
+  poppler \
+  poppler-glib \
   cairo \
   pango \
   fftw \
@@ -126,19 +134,35 @@ RUN apk add --no-cache \
   cgif \
   highway \
   libjpeg-turbo \
+  imagemagick \
   ca-certificates
 
-# Create directories and copy the compiled binary and libraries from builder stage
-RUN mkdir -p /usr/local/lib /usr/local/lib/pkgconfig /usr/lib
+# Add openslide runtime library
+RUN apk add --no-cache --repository=http://dl-cdn.alpinelinux.org/alpine/edge/testing/ \
+  openslide
+
+# Create directories and copy the compiled binary and all necessary VIPS files
+RUN mkdir -p /usr/local/lib /usr/local/lib/pkgconfig /usr/local/include /usr/local/bin
+
+# Copy the main binary
 COPY --from=builder /bandwidth-hero-proxy /bandwidth-hero-proxy
-COPY --from=builder /usr/local/lib/libvips* /usr/local/lib/
-COPY --from=builder /usr/local/lib/pkgconfig/vips* /usr/local/lib/pkgconfig/
+
+# Copy all VIPS-related files from builder
+COPY --from=builder /usr/local/lib/ /usr/local/lib/
+COPY --from=builder /usr/local/include/vips* /usr/local/include/
+COPY --from=builder /usr/local/bin/vips* /usr/local/bin/
+
+# Clean up unnecessary files to reduce image size
+RUN find /usr/local/lib -name "*.a" -delete && \
+    find /usr/local/lib -name "*.la" -delete
 
 # Set up library path for runtime
+ENV PKG_CONFIG_PATH="/usr/lib/pkgconfig:/usr/local/lib/pkgconfig"
 ENV LD_LIBRARY_PATH="/usr/lib:/usr/local/lib"
+
+# Update library cache
 RUN ldconfig /usr/local/lib
 
-# Test that the binary can find its dependencies
-RUN ldd /bandwidth-hero-proxy | grep vips || echo "Warning: vips library not found in dependencies"
+WORKDIR /
 
 ENTRYPOINT [ "/bandwidth-hero-proxy" ]
