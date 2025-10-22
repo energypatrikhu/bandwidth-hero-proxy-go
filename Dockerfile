@@ -68,9 +68,6 @@ RUN VIPS_VERSION=$(wget -qO- "https://api.github.com/repos/libvips/libvips/relea
   ldconfig /usr/local/lib && \
   rm -rf /tmp/vips-source
 
-COPY go.mod go.sum ./
-RUN go mod download
-
 ENV PKG_CONFIG_PATH="/usr/lib/pkgconfig:/usr/local/lib/pkgconfig"
 ENV LD_LIBRARY_PATH="/usr/lib:/usr/local/lib"
 
@@ -83,6 +80,9 @@ RUN ldconfig && \
 
 RUN go install github.com/cshum/vipsgen/cmd/vipsgen@latest
 RUN vipsgen -out ./vips
+
+COPY go.mod go.sum ./
+RUN go mod download
 
 COPY . .
 
