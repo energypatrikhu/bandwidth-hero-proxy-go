@@ -1,11 +1,10 @@
 package utils
 
 import (
-	"bytes"
-	"compress/gzip"
 	"fmt"
 	"io"
 	"net/http"
+	"slices"
 	"strings"
 	"time"
 )
@@ -17,8 +16,8 @@ reqHeaderLoop:
 	for headerKey, headerValue := range headers {
 		headerKey = strings.ToLower(headerKey)
 
-		if headerKey == "host" {
-			continue // Skip Host header
+		if slices.Contains([]string{"host", "accept-encoding"}, headerKey) {
+			continue
 		}
 
 		for _, omittedHeader := range omittedHeadersRegexes {
@@ -29,6 +28,9 @@ reqHeaderLoop:
 
 		requestHeaders[headerKey] = headerValue[0]
 	}
+
+	// Set Accept-Encoding header to handle all compression types we support
+	requestHeaders["accept-encoding"] = "br, zstd, gzip, deflate, lz4, xz, identity"
 
 	duration, err := time.ParseDuration(BHP_EXTERNAL_REQUEST_TIMEOUT)
 	if err != nil {
@@ -74,31 +76,20 @@ reqHeaderLoop:
 			lastErr = fmt.Errorf("failed to fetch image: status %d", statusCode)
 			continue
 		}
-
 		defer resp.Body.Close()
-		data, err = io.ReadAll(resp.Body)
 
+		respBody, err := io.ReadAll(resp.Body)
 		if err != nil {
 			lastErr = err
 			continue
 		}
 
-		// Check for GZIP magic bytes (0x1f 0x8b) and decompress if needed
-		if len(data) >= 2 && data[0] == 0x1f && data[1] == 0x8b {
-			reader, err := gzip.NewReader(bytes.NewReader(data))
-			if err != nil {
-				lastErr = fmt.Errorf("failed to create gzip reader: %v", err)
-				continue
-			}
-
-			decompressed, err := io.ReadAll(reader)
-			reader.Close()
-			if err != nil {
-				lastErr = fmt.Errorf("failed to decompress gzip data: %v", err)
-				continue
-			}
-
-			data = decompressed
+		// Decompress response data based on Content-Encoding header or magic bytes
+		contentEncoding := resp.Header.Get("Content-Encoding")
+		data, err = DecompressResponse(respBody, contentEncoding)
+		if err != nil {
+			lastErr = fmt.Errorf("failed to decompress response data (encoding: %s): %v", contentEncoding, err)
+			continue
 		}
 
 		// Success
