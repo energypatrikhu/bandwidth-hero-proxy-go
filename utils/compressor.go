@@ -12,7 +12,6 @@ func CompressImage(imageBytes []byte, imageFormat string, format string, greysca
 	loadOptions.FailOnError = false // Do not fail on error
 
 	vipsImage, err := vips.NewImageFromBuffer(imageBytes, loadOptions)
-	defer vipsImage.Close()
 
 	// Fallback to specific loaders if generic loader fails
 	if err != nil {
@@ -31,12 +30,11 @@ func CompressImage(imageBytes []byte, imageFormat string, format string, greysca
 			})
 		}
 
-		defer vipsImage.Close()
-
 		if err != nil {
 			return nil, fmt.Errorf("failed to create image from buffer: %w", err)
 		}
 	}
+	defer vipsImage.Close()
 
 	vipsImage.RemoveICCProfile()
 
