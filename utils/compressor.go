@@ -2,59 +2,47 @@ package utils
 
 import (
 	"fmt"
+	"slices"
 
 	"github.com/energypatrikhu/bandwidth-hero-proxy-go/vips"
 )
 
-func CompressImage(imageBytes []byte, imageFormat string, format string, greyscale bool, quality int) (*CompressedImageResponse, error) {
-	loadOptions := &vips.LoadOptions{}
-	loadOptions.N = -1              // Load all pages/frames
-	loadOptions.FailOnError = false // Do not fail on error
+func CompressImage(imageBytes []byte, options *CompressImageOptions) (*CompressImageResult, error) {
+	loadOptions := &vips.LoadOptions{
+		FailOnError: false,
+	}
+	if options.IsAnimated {
+		loadOptions.N = -1 // Load all frames for animated images
+	}
+	if slices.Contains(FormatsSupportingVipsUnlimited, options.InputFormat) {
+		loadOptions.Unlimited = true // Allow unlimited image size for supported formats
+	}
 
-	vipsImage, err := vips.NewImageFromBuffer(imageBytes, loadOptions)
-
-	// Fallback to specific loaders if generic loader fails
-	if err != nil {
-		switch imageFormat {
-		case "image/jpeg", "image/jpg":
-			vipsImage, err = vips.NewJpegloadBuffer(imageBytes, &vips.JpegloadBufferOptions{
-				FailOn: vips.FailOnNone,
-			})
-		case "image/webp":
-			vipsImage, err = vips.NewWebploadBuffer(imageBytes, &vips.WebploadBufferOptions{
-				FailOn: vips.FailOnNone,
-			})
-		case "image/png":
-			vipsImage, err = vips.NewPngloadBuffer(imageBytes, &vips.PngloadBufferOptions{
-				FailOn: vips.FailOnNone,
-			})
-		}
-
-		if err != nil {
-			return nil, fmt.Errorf("failed to create image from buffer: %w", err)
-		}
+	vipsImage, vipsError := vips.NewImageFromBuffer(imageBytes, loadOptions)
+	if vipsError != nil {
+		return nil, fmt.Errorf("failed to create image from buffer: %w", vipsError)
 	}
 	defer vipsImage.Close()
 
 	vipsImage.RemoveICCProfile()
 
-	if greyscale {
+	if options.Greyscale {
 		vipsImage.Colourspace(vips.InterpretationBW, nil)
 	}
 
 	var compressedData []byte
 
-	switch format {
+	switch options.Format {
 	case "webp":
-		compressedData, err = vipsImage.WebpsaveBuffer(&vips.WebpsaveBufferOptions{
-			Q:        quality,
+		compressedData, vipsError = vipsImage.WebpsaveBuffer(&vips.WebpsaveBufferOptions{
+			Q:        options.Quality,
 			Lossless: false,
 			Keep:     vips.KeepNone,
 			Effort:   6,
 		})
 	case "jpeg":
-		compressedData, err = vipsImage.JpegsaveBuffer(&vips.JpegsaveBufferOptions{
-			Q:                  quality,
+		compressedData, vipsError = vipsImage.JpegsaveBuffer(&vips.JpegsaveBufferOptions{
+			Q:                  options.Quality,
 			OptimizeCoding:     true,
 			OptimizeScans:      true,
 			Keep:               vips.KeepNone,
@@ -65,33 +53,38 @@ func CompressImage(imageBytes []byte, imageFormat string, format string, greysca
 			QuantTable:         3,
 		})
 	default:
-		return nil, fmt.Errorf("unsupported format: %s", format)
+		return nil, fmt.Errorf("unsupported format: %s", options.Format)
 	}
 
-	if err != nil {
-		return nil, fmt.Errorf("failed to export image buffer: %w", err)
+	if vipsError != nil {
+		return nil, fmt.Errorf("failed to export image buffer: %w", vipsError)
 	}
 
-	return &CompressedImageResponse{Data: compressedData, Format: format}, nil
+	return &CompressImageResult{Bytes: compressedData, Format: options.Format}, nil
 }
 
-func CompressImageWithAutoQualityDecrement(imageBytes []byte, imageFormat string, format string, greyscale bool, quality int, originalSize int) (*CompressedImageResponse, int, error) {
-	currentQuality := quality
-	var compressedImg *CompressedImageResponse
+func CompressImageWithAutoQualityDecrement(imageBytes []byte, options *CompressImageWithAutoQualityDecrementOptions) (*CompressImageResult, int, error) {
+	currentQuality := options.InitialQuality
+	var compressedImage *CompressImageResult
 	var err error
 
 	// Try compressing the image, decreasing quality by 5 each time until we find a smaller size or reach quality - 10
 	for {
-		compressedImg, err = CompressImage(imageBytes, imageFormat, format, greyscale, currentQuality)
+		compressedImage, err = CompressImage(imageBytes, &CompressImageOptions{
+			InputFormat: options.InputFormat,
+			Format:      options.Format,
+			Greyscale:   options.Greyscale,
+			Quality:     currentQuality,
+		})
 		if err != nil {
 			return nil, currentQuality, fmt.Errorf("failed to compress image: %w", err)
 		}
 
-		if len(compressedImg.Data) < originalSize {
-			return compressedImg, currentQuality, nil // Return the first compressed image that is smaller than the original
+		if len(compressedImage.Bytes) < options.OriginalImageSize {
+			return compressedImage, currentQuality, nil // Return the first compressed image that is smaller than the original
 		}
 
-		if currentQuality < quality-10 { // Stop if we've decreased quality by 10
+		if currentQuality < options.InitialQuality-10 { // Stop if we've decreased quality by 10
 			// If no compression was better, return the original image
 			return nil, currentQuality, fmt.Errorf("could not compress image into smaller size than original")
 		}
@@ -100,10 +93,10 @@ func CompressImageWithAutoQualityDecrement(imageBytes []byte, imageFormat string
 	}
 }
 
-func CompressImageToBestFormat(imageBytes []byte, imageFormat string, greyscale bool, quality int) (*CompressedImageResponse, error) {
+func CompressImageToBestFormat(imageBytes []byte, options *CompressImageToBestFormatOptions) (*CompressImageResult, error) {
 	// Compress to webp and jpeg concurrently using goroutines
 	type result struct {
-		resp *CompressedImageResponse
+		resp *CompressImageResult
 		err  error
 	}
 
@@ -111,7 +104,13 @@ func CompressImageToBestFormat(imageBytes []byte, imageFormat string, greyscale 
 	jpegCh := make(chan result)
 
 	go func() {
-		webpImg, errWebp := CompressImage(imageBytes, imageFormat, "webp", greyscale, quality)
+		// webpImg, errWebp := CompressImage(imageBytes, false, "webp", greyscale, quality)
+		webpImg, errWebp := CompressImage(imageBytes, &CompressImageOptions{
+			Format:      "webp",
+			InputFormat: options.InputFormat,
+			Greyscale:   options.Greyscale,
+			Quality:     options.Quality,
+		})
 		if errWebp == nil {
 			webpCh <- result{resp: webpImg, err: nil}
 		} else {
@@ -120,7 +119,12 @@ func CompressImageToBestFormat(imageBytes []byte, imageFormat string, greyscale 
 	}()
 
 	go func() {
-		jpegImg, errJpeg := CompressImage(imageBytes, imageFormat, "jpeg", greyscale, quality)
+		jpegImg, errJpeg := CompressImage(imageBytes, &CompressImageOptions{
+			Format:      "jpeg",
+			InputFormat: options.InputFormat,
+			Greyscale:   options.Greyscale,
+			Quality:     options.Quality,
+		})
 		if errJpeg == nil {
 			jpegCh <- result{resp: jpegImg, err: nil}
 		} else {
@@ -128,7 +132,7 @@ func CompressImageToBestFormat(imageBytes []byte, imageFormat string, greyscale 
 		}
 	}()
 
-	var webpResp, jpegResp *CompressedImageResponse
+	var webpResp, jpegResp *CompressImageResult
 	var errWebp, errJpeg error
 
 	for range 2 {
@@ -150,12 +154,12 @@ func CompressImageToBestFormat(imageBytes []byte, imageFormat string, greyscale 
 
 	webpSize := 0
 	if webpResp != nil {
-		webpSize = len(webpResp.Data)
+		webpSize = len(webpResp.Bytes)
 	}
 
 	jpegSize := 0
 	if jpegResp != nil {
-		jpegSize = len(jpegResp.Data)
+		jpegSize = len(jpegResp.Bytes)
 	}
 
 	if (webpResp != nil && webpSize < originalSize) || (jpegResp != nil && jpegSize < originalSize) {

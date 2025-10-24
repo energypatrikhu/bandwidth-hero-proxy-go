@@ -12,12 +12,37 @@ type BhpParams struct {
 }
 
 type ImageResponse struct {
-	Data            []byte            `json:"data"`
-	RequestHeaders  map[string]string `json:"requestHeaders"`
-	ResponseHeaders http.Header       `json:"responseHeaders"`
+	Bytes           []byte
+	RequestHeaders  map[string]string
+	ResponseHeaders http.Header
 }
 
-type CompressedImageResponse struct {
-	Data   []byte `json:"data"`
-	Format string `json:"format"`
+type CompressImageResult struct {
+	Bytes  []byte
+	Format string
+}
+
+type CompressImageOptionsParams struct {
+	Format    string
+	Greyscale bool
+	Quality   int
+}
+type CompressImageOptions struct {
+	InputFormat string
+	IsAnimated  bool
+	Format      string
+	Greyscale   bool
+	Quality     int
+}
+type CompressImageWithAutoQualityDecrementOptions struct {
+	InputFormat       string
+	Format            string
+	Greyscale         bool
+	InitialQuality    int
+	OriginalImageSize int
+}
+type CompressImageToBestFormatOptions struct {
+	InputFormat string
+	Greyscale   bool
+	Quality     int
 }
