@@ -46,7 +46,7 @@ func ProxyHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	imageFormat := imageResponse.ResponseHeaders.Get("Content-Type")
 	isAnimated := slices.Contains(AnimatedImageFormats, imageFormat)
-	originalImageSize := len(imageResponse.Bytes)
+	originalImageSize := len(*imageResponse.Bytes)
 
 	currentQuality := bhpParams.Quality
 	var compressedImage *CompressImageResult
@@ -91,7 +91,7 @@ func ProxyHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	compressedImageSize := len(compressedImage.Bytes)
+	compressedImageSize := len(*compressedImage.Bytes)
 	savedSize := originalImageSize - compressedImageSize
 
 	if !BHP_FORCE_FORMAT && savedSize <= 0 {
@@ -119,7 +119,7 @@ func ProxyHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("X-Size-Saved", fmt.Sprintf("%d", savedSize))
 
 	w.WriteHeader(http.StatusOK)
-	if _, err := w.Write(compressedImage.Bytes); err != nil {
+	if _, err := w.Write(*compressedImage.Bytes); err != nil {
 		http.Error(w, "Failed to write image response: "+err.Error(), http.StatusInternalServerError)
 		fmt.Println("Error writing image response:", err)
 		return
