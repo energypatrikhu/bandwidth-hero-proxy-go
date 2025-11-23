@@ -106,7 +106,7 @@ reqHeaderLoop:
 	}
 
 	imageResponse := &ImageResponse{
-		Bytes:           &data,
+		Bytes:           data,
 		RequestHeaders:  requestHeaders,
 		ResponseHeaders: resp.Header,
 	}

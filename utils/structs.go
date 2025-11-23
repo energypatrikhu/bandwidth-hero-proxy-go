@@ -12,13 +12,13 @@ type BhpParams struct {
 }
 
 type ImageResponse struct {
-	Bytes           *[]byte
+	Bytes           []byte
 	RequestHeaders  map[string]string
 	ResponseHeaders http.Header
 }
 
 type CompressImageResult struct {
-	Bytes  *[]byte
+	Bytes  []byte
 	Format string
 }
 

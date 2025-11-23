@@ -46,18 +46,18 @@ func ProxyHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	imageFormat := imageResponse.ResponseHeaders.Get("Content-Type")
 	isAnimated := slices.Contains(AnimatedImageFormats, imageFormat)
-	originalImageSize := len(*imageResponse.Bytes)
+	originalImageSize := len(imageResponse.Bytes)
 
 	currentQuality := bhpParams.Quality
 	var compressedImage *CompressImageResult
 	if BHP_USE_BEST_COMPRESSION_FORMAT && !isAnimated {
-		compressedImage, err = CompressImageToBestFormat(imageResponse.Bytes, &CompressImageToBestFormatOptions{
+		compressedImage, err = CompressImageToBestFormat(imageResponse.Bytes, CompressImageToBestFormatOptions{
 			InputFormat: imageFormat,
 			Greyscale:   bhpParams.Greyscale,
 			Quality:     bhpParams.Quality,
 		})
 	} else if BHP_AUTO_DECREMENT_QUALITY && !isAnimated {
-		compressedImage, currentQuality, err = CompressImageWithAutoQualityDecrement(imageResponse.Bytes, &CompressImageWithAutoQualityDecrementOptions{
+		compressedImage, currentQuality, err = CompressImageWithAutoQualityDecrement(imageResponse.Bytes, CompressImageWithAutoQualityDecrementOptions{
 			InputFormat:       imageFormat,
 			Format:            bhpParams.Format,
 			Greyscale:         bhpParams.Greyscale,
@@ -65,7 +65,7 @@ func ProxyHandler(w http.ResponseWriter, r *http.Request) {
 			OriginalImageSize: originalImageSize,
 		})
 	} else {
-		compressedImage, err = CompressImage(imageResponse.Bytes, &CompressImageOptions{
+		compressedImage, err = CompressImage(imageResponse.Bytes, CompressImageOptions{
 			InputFormat: imageFormat,
 			IsAnimated:  isAnimated,
 			Format:      bhpParams.Format,
@@ -91,7 +91,7 @@ func ProxyHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	compressedImageSize := len(*compressedImage.Bytes)
+	compressedImageSize := len(compressedImage.Bytes)
 	savedSize := originalImageSize - compressedImageSize
 
 	if !BHP_FORCE_FORMAT && savedSize <= 0 {
@@ -119,7 +119,7 @@ func ProxyHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("X-Size-Saved", fmt.Sprintf("%d", savedSize))
 
 	w.WriteHeader(http.StatusOK)
-	if _, err := w.Write(*compressedImage.Bytes); err != nil {
+	if _, err := w.Write(compressedImage.Bytes); err != nil {
 		http.Error(w, "Failed to write image response: "+err.Error(), http.StatusInternalServerError)
 		fmt.Println("Error writing image response:", err)
 		return
