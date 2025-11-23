@@ -242,6 +242,18 @@ func DecompressByMagicBytes(data []byte) ([]byte, error) {
 	return data, nil
 }
 
+var supportedEncodingsMap = map[string]bool{
+	"gzip":     true,
+	"deflate":  true,
+	"br":       true,
+	"brotli":   true,
+	"zstd":     true,
+	"lz4":      true,
+	"xz":       true,
+	"identity": true,
+	"": true,
+}
+
 // GetSupportedEncodings returns a list of all supported compression encodings
 func GetSupportedEncodings() []string {
 	return []string{
@@ -258,12 +270,5 @@ func GetSupportedEncodings() []string {
 // IsEncodingSupported checks if a given encoding is supported
 func IsEncodingSupported(encoding string) bool {
 	encoding = strings.ToLower(strings.TrimSpace(encoding))
-	supported := GetSupportedEncodings()
-
-	for _, enc := range supported {
-		if encoding == enc {
-			return true
-		}
-	}
-	return false
+	return supportedEncodingsMap[encoding]
 }
