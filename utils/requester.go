@@ -6,7 +6,13 @@ import (
 	"net/http"
 	"slices"
 	"strings"
+	"sync"
 	"time"
+)
+
+var (
+	httpClient     *http.Client
+	httpClientOnce sync.Once
 )
 
 func RequestImage(url string, headers http.Header) (*ImageResponse, error) {
@@ -37,20 +43,27 @@ reqHeaderLoop:
 		return nil, fmt.Errorf("invalid timeout duration: %v", err)
 	}
 
+	// Initialize shared HTTP client once
+	httpClientOnce.Do(func() {
+		httpClient = &http.Client{
+			Timeout: duration,
+			Transport: &http.Transport{
+				MaxIdleConns:        100,
+				MaxIdleConnsPerHost: 10,
+				IdleConnTimeout:     90 * time.Second,
+			},
+			CheckRedirect: func(req *http.Request, via []*http.Request) error {
+				if len(via) >= BHP_EXTERNAL_REQUEST_REDIRECTS {
+					return fmt.Errorf("stopped after %d redirects", BHP_EXTERNAL_REQUEST_REDIRECTS)
+				}
+				return nil
+			},
+		}
+	})
+
 	var resp *http.Response
 	var data []byte
 	var lastErr error
-
-	client := &http.Client{
-		Timeout: duration,
-		// Follow redirects
-		CheckRedirect: func(req *http.Request, via []*http.Request) error {
-			if len(via) >= BHP_EXTERNAL_REQUEST_REDIRECTS {
-				return fmt.Errorf("stopped after %d redirects", BHP_EXTERNAL_REQUEST_REDIRECTS)
-			}
-			return nil
-		},
-	}
 
 	for attempt := 0; attempt < BHP_EXTERNAL_REQUEST_RETRIES+1; attempt++ {
 		req, err := http.NewRequest("GET", url, nil)
@@ -63,7 +76,7 @@ reqHeaderLoop:
 			req.Header.Set(k, v)
 		}
 
-		resp, err = client.Do(req)
+		resp, err = httpClient.Do(req)
 		if err != nil {
 			lastErr = err
 			continue
