@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"slices"
 	"strings"
 	"sync"
 	"time"
@@ -13,6 +12,10 @@ import (
 var (
 	httpClient     *http.Client
 	httpClientOnce sync.Once
+	skipHeadersMap = map[string]bool{
+		"host":            true,
+		"accept-encoding": true,
+	}
 )
 
 func RequestImage(url string, headers http.Header) (*ImageResponse, error) {
@@ -20,19 +23,19 @@ func RequestImage(url string, headers http.Header) (*ImageResponse, error) {
 
 reqHeaderLoop:
 	for headerKey, headerValue := range headers {
-		headerKey = strings.ToLower(headerKey)
+		headerKeyLower := strings.ToLower(headerKey)
 
-		if slices.Contains([]string{"host", "accept-encoding"}, headerKey) {
+		if skipHeadersMap[headerKeyLower] {
 			continue
 		}
 
 		for _, omittedHeader := range omittedHeadersRegexes {
-			if omittedHeader.MatchString(headerKey) {
+			if omittedHeader.MatchString(headerKeyLower) {
 				continue reqHeaderLoop
 			}
 		}
 
-		requestHeaders[headerKey] = headerValue[0]
+		requestHeaders[headerKeyLower] = headerValue[0]
 	}
 
 	// Set Accept-Encoding header to handle all compression types we support
