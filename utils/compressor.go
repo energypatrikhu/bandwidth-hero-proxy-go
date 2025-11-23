@@ -2,7 +2,6 @@ package utils
 
 import (
 	"fmt"
-	"slices"
 
 	"github.com/energypatrikhu/bandwidth-hero-proxy-go/vips"
 )
@@ -14,7 +13,7 @@ func CompressImage(imageBytes []byte, options CompressImageOptions) (*CompressIm
 	if options.IsAnimated {
 		loadOptions.N = -1 // Load all frames for animated images
 	}
-	if slices.Contains(FormatsSupportingVipsUnlimited, options.InputFormat) {
+	if SupportsUnlimited(options.InputFormat) {
 		loadOptions.Unlimited = true // Allow unlimited image size for supported formats
 	}
 
