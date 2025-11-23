@@ -3,38 +3,36 @@ package utils
 import (
 	"fmt"
 	"net/http"
+	"strconv"
 )
 
 func ParseParams(r *http.Request) (*BhpParams, error) {
 	query := r.URL.Query()
 
-	url := query.Get("url")
-	if url == "" {
-		return nil, fmt.Errorf("Missing required parameter: url")
+	urlParam := query.Get("url")
+	if urlParam == "" {
+		return nil, fmt.Errorf("missing required parameter: url")
 	}
-	url = inputUrlRegex.ReplaceAllString(query.Get("url"), "http://")
+	url := inputUrlRegex.ReplaceAllString(urlParam, "http://")
 
 	format := "webp" // Set webp as default format
 	if query.Get("jpg") == "1" {
 		format = "jpeg"
 	}
 
-	greyscale := false // Disable greyscale by default
-	if query.Get("bw") == "1" {
-		greyscale = true
-	}
+	greyscale := query.Get("bw") == "1"
 
 	quality := 80 // Set default quality to 80
-	if query.Get("l") != "" {
-		fmt.Sscanf(query.Get("l"), "%d", &quality)
+	if qualityStr := query.Get("l"); qualityStr != "" {
+		if parsedQuality, err := strconv.Atoi(qualityStr); err == nil && parsedQuality > 0 && parsedQuality <= 100 {
+			quality = parsedQuality
+		}
 	}
 
-	params := &BhpParams{
+	return &BhpParams{
 		Url:       url,
 		Format:    format,
 		Greyscale: greyscale,
 		Quality:   quality,
-	}
-
-	return params, nil
+	}, nil
 }
