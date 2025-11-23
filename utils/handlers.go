@@ -3,7 +3,7 @@ package utils
 import (
 	"fmt"
 	"net/http"
-	"slices"
+	"strconv"
 	"strings"
 )
 
@@ -45,7 +45,7 @@ func ProxyHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	imageFormat := imageResponse.ResponseHeaders.Get("Content-Type")
-	isAnimated := slices.Contains(AnimatedImageFormats, imageFormat)
+	isAnimated := IsAnimatedFormat(imageFormat)
 	originalImageSize := len(imageResponse.Bytes)
 
 	currentQuality := bhpParams.Quality
@@ -114,10 +114,10 @@ func ProxyHandler(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set(headerKeyLower, headerValue[0]) // Set other headers from the original response
 	}
 	w.Header().Set("Content-Type", "image/"+compressedImage.Format)
-	w.Header().Set("Content-Length", fmt.Sprintf("%d", compressedImageSize))
-	w.Header().Set("X-Original-Size", fmt.Sprintf("%d", originalImageSize))
-	w.Header().Set("X-Compressed-Size", fmt.Sprintf("%d", compressedImageSize))
-	w.Header().Set("X-Size-Saved", fmt.Sprintf("%d", savedSize))
+	w.Header().Set("Content-Length", strconv.Itoa(compressedImageSize))
+	w.Header().Set("X-Original-Size", strconv.Itoa(originalImageSize))
+	w.Header().Set("X-Compressed-Size", strconv.Itoa(compressedImageSize))
+	w.Header().Set("X-Size-Saved", strconv.Itoa(savedSize))
 
 	w.WriteHeader(http.StatusOK)
 	if _, err := w.Write(compressedImage.Bytes); err != nil {
