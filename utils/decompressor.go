@@ -251,7 +251,7 @@ var supportedEncodingsMap = map[string]bool{
 	"lz4":      true,
 	"xz":       true,
 	"identity": true,
-	"": true,
+	"":         true,
 }
 
 // GetSupportedEncodings returns a list of all supported compression encodings
