@@ -21,12 +21,12 @@ var FormatsSupportingVipsUnlimited = []string{
 // Pre-computed maps for faster lookups
 var (
 	animatedFormatsMap = map[string]bool{
-		"image/gif":        true,
-		"image/apng":       true,
-		"image/webp":       true,
-		"image/heif":       true,
-		"image/jxl":        true,
-		"image/tiff":       true,
+		"image/gif":       true,
+		"image/apng":      true,
+		"image/webp":      true,
+		"image/heif":      true,
+		"image/jxl":       true,
+		"image/tiff":      true,
 		"application/pdf": true,
 	}
 	unlimitedFormatsMap = map[string]bool{
