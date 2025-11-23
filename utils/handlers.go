@@ -103,14 +103,15 @@ func ProxyHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	skipHeaders := map[string]bool{"transfer-encoding": true, "content-encoding": true, "vary": true}
 	for headerKey, headerValue := range imageResponse.ResponseHeaders {
-		headerKey = strings.ToLower(headerKey)
+		headerKeyLower := strings.ToLower(headerKey)
 
-		if slices.Contains([]string{"transfer-encoding", "content-encoding", "vary"}, strings.ToLower(headerKey)) {
+		if skipHeaders[headerKeyLower] {
 			continue
 		}
 
-		w.Header().Set(headerKey, headerValue[0]) // Set other headers from the original response
+		w.Header().Set(headerKeyLower, headerValue[0]) // Set other headers from the original response
 	}
 	w.Header().Set("Content-Type", "image/"+compressedImage.Format)
 	w.Header().Set("Content-Length", fmt.Sprintf("%d", compressedImageSize))
@@ -125,20 +126,31 @@ func ProxyHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var reqHeaders string
+	var reqHeaders strings.Builder
 	sortedRequestHeaders := GetSortedKeys(imageResponse.RequestHeaders)
+	reqHeaders.Grow(len(sortedRequestHeaders) * 40) // Pre-allocate approximate size
 	for _, k := range sortedRequestHeaders {
 		v := imageResponse.RequestHeaders[k]
-		k = strings.ToLower(k)
-		reqHeaders += fmt.Sprintf(" > %s: %s\n", k, v)
+		kLower := strings.ToLower(k)
+		reqHeaders.WriteString(" > ")
+		reqHeaders.WriteString(kLower)
+		reqHeaders.WriteString(": ")
+		reqHeaders.WriteString(v)
+		reqHeaders.WriteString("\n")
 	}
 
-	var resHeaders string
-	sortedResponseHeaders := GetSortedKeys(w.Header())
+	var resHeaders strings.Builder
+	responseHeader := w.Header()
+	sortedResponseHeaders := GetSortedKeys(responseHeader)
+	resHeaders.Grow(len(sortedResponseHeaders) * 40) // Pre-allocate approximate size
 	for _, k := range sortedResponseHeaders {
-		v := w.Header().Get(k)
-		k = strings.ToLower(k)
-		resHeaders += fmt.Sprintf(" > %s: %s\n", k, v)
+		v := responseHeader.Get(k)
+		kLower := strings.ToLower(k)
+		resHeaders.WriteString(" > ")
+		resHeaders.WriteString(kLower)
+		resHeaders.WriteString(": ")
+		resHeaders.WriteString(v)
+		resHeaders.WriteString("\n")
 	}
 
 	compressedImageSizeStr := FormatSize(int64(compressedImageSize))
@@ -148,7 +160,7 @@ func ProxyHandler(w http.ResponseWriter, r *http.Request) {
 	compressedImageSizePerc := CalcPercentage(int64(compressedImageSize), int64(originalImageSize))
 	savedSizePerc := CalcPercentage(int64(savedSize), int64(originalImageSize))
 
-	formatModifiers := []string{}
+	formatModifiers := make([]string, 0, 3)
 	if BHP_FORCE_FORMAT {
 		formatModifiers = append(formatModifiers, "forced")
 	}
@@ -161,13 +173,15 @@ func ProxyHandler(w http.ResponseWriter, r *http.Request) {
 
 	formatInfo := ""
 	if len(formatModifiers) > 0 {
-		formatInfo = fmt.Sprintf(" (%s)", strings.Join(formatModifiers, ", "))
+		formatInfo = " (" + strings.Join(formatModifiers, ", ") + ")"
 	}
 
-	fmt.Printf("\n> Params:\n > URL: %s\n > Format: %s\n > Quality: %d (%d)\n > Greyscale: %t\n> Request headers:\n%s> Response headers:\n%s> Info:\n > Using format: %s%s\n > Original size: %s\n > Compressed size: %s ( %s )\n > Saved size: %s ( %s )\n",
+	reqHeadersStr := reqHeaders.String()
+	resHeadersStr := resHeaders.String()
+	fmt.Printf("\n> Params:\n > URL: %s\n > Format: %s\n > Quality: %d (%d)\n > Greyscale: %t\n> Request headers:\n%s> Response headers:\n%s> Info:\n > Using format: %s%s\n > Original size: %s\n > Compressed size: %s ( %.2f%% )\n > Saved size: %s ( %.2f%% )\n",
 		bhpParams.Url, bhpParams.Format, bhpParams.Quality, currentQuality, bhpParams.Greyscale,
-		reqHeaders, resHeaders, compressedImage.Format, formatInfo,
+		reqHeadersStr, resHeadersStr, compressedImage.Format, formatInfo,
 		originalImageSizeStr,
-		compressedImageSizeStr, fmt.Sprintf("%.2f%%", compressedImageSizePerc),
-		savedSizeStr, fmt.Sprintf("%.2f%%", savedSizePerc))
+		compressedImageSizeStr, compressedImageSizePerc,
+		savedSizeStr, savedSizePerc)
 }
