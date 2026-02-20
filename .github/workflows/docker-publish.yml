@@ -98,8 +98,6 @@ jobs:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
             type=semver,pattern={{version}},value=${{ steps.next_version.outputs.new_version }}
-            type=semver,pattern={{major}}.{{minor}},value=${{ steps.next_version.outputs.new_version }}
-            type=semver,pattern={{major}},value=${{ steps.next_version.outputs.new_version }}
             type=raw,value=latest
 
       - name: Delete old package versions
