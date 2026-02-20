@@ -49,9 +49,6 @@ RUN apk add --no-cache \
   libjpeg-turbo-dev \
   imagemagick-dev
 
-RUN apk add --no-cache --repository=http://dl-cdn.alpinelinux.org/alpine/edge/testing/ \
-  openslide-dev
-
 # Build vips from source
 RUN VIPS_VERSION=$(wget -qO- "https://api.github.com/repos/libvips/libvips/releases/latest" | grep -o '"tag_name": "v[^"]*"' | cut -d'"' -f4 | sed 's/^v//') && \
   mkdir -p /tmp/vips-source && \
@@ -138,10 +135,6 @@ RUN apk add --no-cache \
   libjpeg-turbo \
   imagemagick \
   ca-certificates
-
-# Add openslide runtime library
-RUN apk add --no-cache --repository=http://dl-cdn.alpinelinux.org/alpine/edge/testing/ \
-  openslide
 
 # Create directories and copy the compiled binary and all necessary VIPS files
 RUN mkdir -p /usr/local/lib /usr/local/lib/pkgconfig /usr/local/include /usr/local/bin
