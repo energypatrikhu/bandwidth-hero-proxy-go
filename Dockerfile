@@ -47,7 +47,8 @@ RUN apk add --no-cache \
   cgif-dev \
   highway-dev \
   libjpeg-turbo-dev \
-  imagemagick-dev
+  imagemagick-dev \
+  uhd-dev
 
 # Build vips from source
 RUN VIPS_VERSION=$(wget -qO- "https://api.github.com/repos/libvips/libvips/releases/latest" | grep -o '"tag_name": "v[^"]*"' | cut -d'"' -f4 | sed 's/^v//') && \
@@ -135,7 +136,8 @@ RUN apk add --no-cache \
   highway \
   libjpeg-turbo \
   imagemagick \
-  ca-certificates
+  ca-certificates \
+  uhd
 
 # Create directories and copy the compiled binary and all necessary VIPS files
 RUN mkdir -p /usr/local/lib /usr/local/lib/pkgconfig /usr/local/include /usr/local/bin
