@@ -69,7 +69,8 @@ RUN VIPS_VERSION=$(wget -qO- "https://api.github.com/repos/libvips/libvips/relea
     -Dvapi=true \
     -Dmatio=disabled \
     -Dpdfium=disabled \
-    -Dnifti=disabled && \
+    -Dnifti=disabled \
+    -Dopenslide=disabled && \
   ninja -C build && \
   ninja -C build install && \
   ldconfig /usr/local/lib && \
