@@ -123,7 +123,7 @@ RUN apk add --no-cache \
   lcms2 \
   libexif \
   libgsf \
-  openexr \
+  openexr-libopenexr \
   libraw \
   libheif \
   libimagequant \
