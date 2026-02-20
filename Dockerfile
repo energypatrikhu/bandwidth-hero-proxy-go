@@ -83,13 +83,15 @@ ENV LD_LIBRARY_PATH="/usr/lib:/usr/local/lib"
 
 WORKDIR /tmp/app-source
 
-RUN go install github.com/cshum/vipsgen/cmd/vipsgen@latest && \
-  vipsgen -out ./vips
+RUN mkdir -p ./third_party && \
+  go install github.com/cshum/vipsgen/cmd/vipsgen@latest && \
+  vipsgen -out ./third_party/vips
 
 COPY go.mod go.sum ./
 RUN go mod download
 
-COPY . .
+COPY cmd cmd
+COPY internal internal
 
 ENV CGO_ENABLED=1 \
   GOOS=linux \
@@ -97,7 +99,7 @@ ENV CGO_ENABLED=1 \
 
 RUN go build -x -v -a -tags vips \
   -ldflags="-s -w -linkmode external" \
-  -o /bandwidth-hero-proxy ./main.go
+  -o /bandwidth-hero-proxy ./cmd/main.go
 
 # Runtime stage
 FROM alpine:latest AS runtime

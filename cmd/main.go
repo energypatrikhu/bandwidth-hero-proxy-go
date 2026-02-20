@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/energypatrikhu/bandwidth-hero-proxy-go/utils"
-	"github.com/energypatrikhu/bandwidth-hero-proxy-go/vips"
+	"github.com/energypatrikhu/bandwidth-hero-proxy-go/internal/utils"
+	"github.com/energypatrikhu/bandwidth-hero-proxy-go/third_party/vips"
 )
 
 func main() {
