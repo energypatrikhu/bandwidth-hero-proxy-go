@@ -33,8 +33,8 @@ func ProxyHandler(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Location", bhpParams.Url)
 		w.WriteHeader(http.StatusFound)
 
-		log.Printf("\n> Params:\n > URL: %s\n > Format: %s\n > Quality: %d\n > Greyscale: %t\n> Info:\n > Error: %s\n > Action: Redirecting to original URL\n",
-			bhpParams.Url, bhpParams.Format, bhpParams.Quality, bhpParams.Greyscale, err.Error())
+		log.Printf("\n> Params:\n > URL: %s\n > Format: %s\n > Quality: %d\n > Grayscale: %t\n> Info:\n > Error: %s\n > Action: Redirecting to original URL\n",
+			bhpParams.Url, bhpParams.Format, bhpParams.Quality, bhpParams.Grayscale, err.Error())
 		return
 	}
 	imageFormat := imageResponse.ResponseHeaders.Get("Content-Type")
@@ -46,14 +46,14 @@ func ProxyHandler(w http.ResponseWriter, r *http.Request) {
 	if BHP_USE_BEST_COMPRESSION_FORMAT && !isAnimated {
 		compressedImage, err = CompressImageToBestFormat(imageResponse.Bytes, CompressImageToBestFormatOptions{
 			InputFormat: imageFormat,
-			Greyscale:   bhpParams.Greyscale,
+			Grayscale:   bhpParams.Grayscale,
 			Quality:     bhpParams.Quality,
 		})
 	} else if BHP_AUTO_DECREMENT_QUALITY && !isAnimated {
 		compressedImage, currentQuality, err = CompressImageWithAutoQualityDecrement(imageResponse.Bytes, CompressImageWithAutoQualityDecrementOptions{
 			InputFormat:       imageFormat,
 			Format:            bhpParams.Format,
-			Greyscale:         bhpParams.Greyscale,
+			Grayscale:         bhpParams.Grayscale,
 			InitialQuality:    bhpParams.Quality,
 			OriginalImageSize: originalImageSize,
 		})
@@ -62,7 +62,7 @@ func ProxyHandler(w http.ResponseWriter, r *http.Request) {
 			InputFormat: imageFormat,
 			IsAnimated:  isAnimated,
 			Format:      bhpParams.Format,
-			Greyscale:   bhpParams.Greyscale,
+			Grayscale:   bhpParams.Grayscale,
 			Quality:     bhpParams.Quality,
 		})
 	}
@@ -70,8 +70,8 @@ func ProxyHandler(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Location", bhpParams.Url)
 		w.WriteHeader(http.StatusFound)
 
-		log.Printf("\n> Params:\n > URL: %s\n > Format: %s\n > Quality: %d (%d)\n > Greyscale: %t\n> Info:\n > Error: %s\n > Action: Redirecting to original URL\n",
-			bhpParams.Url, bhpParams.Format, bhpParams.Quality, currentQuality, bhpParams.Greyscale, err.Error())
+		log.Printf("\n> Params:\n > URL: %s\n > Format: %s\n > Quality: %d (%d)\n > Grayscale: %t\n> Info:\n > Error: %s\n > Action: Redirecting to original URL\n",
+			bhpParams.Url, bhpParams.Format, bhpParams.Quality, currentQuality, bhpParams.Grayscale, err.Error())
 		return
 	}
 
@@ -79,8 +79,8 @@ func ProxyHandler(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Location", bhpParams.Url)
 		w.WriteHeader(http.StatusFound)
 
-		log.Printf("\n> Params:\n > URL: %s\n > Format: %s\n > Quality: %d (%d)\n > Greyscale: %t\n> Info:\n > Error: Could not compress image into smaller size than original\n > Action: Redirecting to original URL\n",
-			bhpParams.Url, bhpParams.Format, bhpParams.Quality, currentQuality, bhpParams.Greyscale)
+		log.Printf("\n> Params:\n > URL: %s\n > Format: %s\n > Quality: %d (%d)\n > Grayscale: %t\n> Info:\n > Error: Could not compress image into smaller size than original\n > Action: Redirecting to original URL\n",
+			bhpParams.Url, bhpParams.Format, bhpParams.Quality, currentQuality, bhpParams.Grayscale)
 		return
 	}
 
@@ -91,8 +91,8 @@ func ProxyHandler(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Location", bhpParams.Url)
 		w.WriteHeader(http.StatusFound)
 
-		log.Printf("\n> Params:\n > URL: %s\n > Format: %s\n > Quality: %d (%d)\n > Greyscale: %t\n> Info:\n > Error: Compressed image is not smaller than original\n > Action: Redirecting to original URL\n",
-			bhpParams.Url, bhpParams.Format, bhpParams.Quality, currentQuality, bhpParams.Greyscale)
+		log.Printf("\n> Params:\n > URL: %s\n > Format: %s\n > Quality: %d (%d)\n > Grayscale: %t\n> Info:\n > Error: Compressed image is not smaller than original\n > Action: Redirecting to original URL\n",
+			bhpParams.Url, bhpParams.Format, bhpParams.Quality, currentQuality, bhpParams.Grayscale)
 		return
 	}
 
@@ -171,8 +171,8 @@ func ProxyHandler(w http.ResponseWriter, r *http.Request) {
 
 	reqHeadersStr := reqHeaders.String()
 	resHeadersStr := resHeaders.String()
-	log.Printf("\n> Params:\n > URL: %s\n > Format: %s\n > Quality: %d (%d)\n > Greyscale: %t\n> Request headers:\n%s> Response headers:\n%s> Info:\n > Using format: %s%s\n > Original size: %s\n > Compressed size: %s ( %.2f%% )\n > Saved size: %s ( %.2f%% )\n",
-		bhpParams.Url, bhpParams.Format, bhpParams.Quality, currentQuality, bhpParams.Greyscale,
+	log.Printf("\n> Params:\n > URL: %s\n > Format: %s\n > Quality: %d (%d)\n > Grayscale: %t\n> Request headers:\n%s> Response headers:\n%s> Info:\n > Using format: %s%s\n > Original size: %s\n > Compressed size: %s ( %.2f%% )\n > Saved size: %s ( %.2f%% )\n",
+		bhpParams.Url, bhpParams.Format, bhpParams.Quality, currentQuality, bhpParams.Grayscale,
 		reqHeadersStr, resHeadersStr, compressedImage.Format, formatInfo,
 		originalImageSizeStr,
 		compressedImageSizeStr, compressedImageSizePerc,

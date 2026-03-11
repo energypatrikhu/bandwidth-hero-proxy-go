@@ -20,7 +20,7 @@ func ParseParams(r *http.Request) (*BhpParams, error) {
 		format = "jpeg"
 	}
 
-	greyscale := query.Get("bw") == "1"
+	grayscale := query.Get("bw") == "1"
 
 	quality := 80 // Set default quality to 80
 	if qualityStr := query.Get("l"); qualityStr != "" {
@@ -32,7 +32,7 @@ func ParseParams(r *http.Request) (*BhpParams, error) {
 	return &BhpParams{
 		Url:       url,
 		Format:    format,
-		Greyscale: greyscale,
+		Grayscale: grayscale,
 		Quality:   quality,
 	}, nil
 }

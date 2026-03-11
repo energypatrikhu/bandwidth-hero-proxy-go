@@ -25,7 +25,7 @@ func CompressImage(imageBytes []byte, options CompressImageOptions) (*CompressIm
 
 	vipsImage.RemoveICCProfile()
 
-	if options.Greyscale {
+	if options.Grayscale {
 		vipsImage.Colourspace(vips.InterpretationBW, nil)
 	}
 
@@ -69,7 +69,7 @@ func CompressImageWithAutoQualityDecrement(imageBytes []byte, options CompressIm
 	compressOpts := CompressImageOptions{
 		InputFormat: options.InputFormat,
 		Format:      options.Format,
-		Greyscale:   options.Greyscale,
+		Grayscale:   options.Grayscale,
 		IsAnimated:  false,
 	}
 
@@ -108,7 +108,7 @@ func CompressImageToBestFormat(imageBytes []byte, options CompressImageToBestFor
 		webpImageBytes, errWebp := CompressImage(imageBytes, CompressImageOptions{
 			Format:      "webp",
 			InputFormat: options.InputFormat,
-			Greyscale:   options.Greyscale,
+			Grayscale:   options.Grayscale,
 			Quality:     options.Quality,
 			IsAnimated:  false,
 		})
@@ -119,7 +119,7 @@ func CompressImageToBestFormat(imageBytes []byte, options CompressImageToBestFor
 		jpegImageBytes, errJpeg := CompressImage(imageBytes, CompressImageOptions{
 			Format:      "jpeg",
 			InputFormat: options.InputFormat,
-			Greyscale:   options.Greyscale,
+			Grayscale:   options.Grayscale,
 			Quality:     options.Quality,
 			IsAnimated:  false,
 		})

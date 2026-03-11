@@ -7,7 +7,7 @@ import (
 type BhpParams struct {
 	Url       string `json:"url"`
 	Format    string `json:"format"`
-	Greyscale bool   `json:"greyscale"`
+	Grayscale bool   `json:"grayscale"`
 	Quality   int    `json:"quality"`
 }
 
@@ -26,20 +26,20 @@ type CompressImageOptions struct {
 	InputFormat string
 	IsAnimated  bool
 	Format      string
-	Greyscale   bool
+	Grayscale   bool
 	Quality     int
 }
 
 type CompressImageWithAutoQualityDecrementOptions struct {
 	InputFormat       string
 	Format            string
-	Greyscale         bool
+	Grayscale         bool
 	InitialQuality    int
 	OriginalImageSize int
 }
 
 type CompressImageToBestFormatOptions struct {
 	InputFormat string
-	Greyscale   bool
+	Grayscale   bool
 	Quality     int
 }

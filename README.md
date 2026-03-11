@@ -8,7 +8,7 @@ Image compression proxy server that reduces bandwidth usage by compressing image
 
 - Supports WebP and JPEG compression
 - Automatic format selection for best compression
-- Optional greyscale conversion
+- Optional grayscale conversion
 - Configurable quality levels
 - Animated GIF support
 - Request retry logic and redirect handling
@@ -67,14 +67,14 @@ go build -o bandwidth-hero-proxy main.go
 > Note: It is recommended to **place** the `url` query to the **end of the request** and **url encode** it, to prevent the query strings to mix up and get placed into the wrong request.
 
 ```
-http://your-proxy-server/?quality=<QUALITY>&jpg=<0|1>&greyscale=<0|1>&url=<IMAGE_URL>
+http://your-proxy-server/?quality=<QUALITY>&jpg=<0|1>&grayscale=<0|1>&url=<IMAGE_URL>
 ```
 
 **Parameters:**
 
 - `quality`: Compression quality 1-100 (default: 80)
 - `jpg`: Use JPEG instead of WebP (default: 0)
-- `greyscale`: Convert to greyscale (default: 0)
+- `grayscale`: Convert to grayscale (default: 0)
 - `url` (required): Image URL to compress
 
 **Examples:**
