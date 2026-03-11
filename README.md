@@ -16,21 +16,46 @@ Image compression proxy server that reduces bandwidth usage by compressing image
 ## Quick Start
 
 - **Option 1: Use prebuilt package**
-
+  - a. Pull and run the Docker image:
   ```bash
   docker run --publish 80:80 ghcr.io/energypatrikhu/bandwidth-hero-proxy-go:latest
   ```
 
+  - b. Download compose file and run with Docker Compose:
+  ```bash
+  curl -O https://raw.githubusercontent.com/energypatrikhu/bandwidth-hero-proxy-go/main/docker-compose.yml
+  docker-compose up -d
+  ```
+
+  - c. Copy docker compose manually into your existing compose file:
+  ```yaml
+  services:
+    bandwidth-hero-proxy:
+      container_name: bandwidth-hero-proxy
+      image: ghcr.io/energypatrikhu/bandwidth-hero-proxy-go
+      network_mode: bridge
+      # environment: # optional environment variables
+      #   BHP_PORT: 80
+      #   BHP_MAX_CONCURRENCY: 4 # default: number of CPU cores
+      #   BHP_FORCE_FORMAT: false
+      #   BHP_AUTO_DECREMENT_QUALITY: false
+      #   BHP_USE_BEST_COMPRESSION_FORMAT: true
+      #   BHP_EXTERNAL_REQUEST_TIMEOUT: "60s"
+      #   BHP_EXTERNAL_REQUEST_RETRIES: 5
+      #   BHP_EXTERNAL_REQUEST_REDIRECTS: 10
+      #   BHP_EXTERNAL_REQUEST_OMIT_HEADERS: ""
+      ports:
+        - 8080:80
+  ```
+
 - **Option 2: Build it yourself**
   1. Clone the repository:
-
   ```bash
-  git clone energypatrikhu/bandwidth-hero-proxy-go
+  git clone https://github.com/energypatrikhu/bandwidth-hero-proxy-go
   cd bandwidth-hero-proxy-go
   ```
 
   2. Build and compose up:
-
   ```bash
   docker-compose up --build
   ```
@@ -40,7 +65,7 @@ Image compression proxy server that reduces bandwidth usage by compressing image
 1. Clone the repository, then navigate into the directory
 
 ```bash
-git clone energypatrikhu/bandwidth-hero-proxy-go
+git clone https://github.com/energypatrikhu/bandwidth-hero-proxy-go
 cd bandwidth-hero-proxy-go
 ```
 
