@@ -13,24 +13,22 @@ func main() {
 	log.Println("Starting Bandwidth Hero Proxy...")
 
 	log.Println("> Config:")
-	log.Println("  > BHP_PORT:", utils.BHP_PORT)
-	log.Println("  > BHP_MAX_CONCURRENCY:", utils.BHP_MAX_CONCURRENCY)
-	log.Println("  > BHP_FORCE_FORMAT:", utils.BHP_FORCE_FORMAT)
-	log.Println("  > BHP_AUTO_DECREMENT_QUALITY:", utils.BHP_AUTO_DECREMENT_QUALITY)
-	log.Println("  > BHP_USE_BEST_COMPRESSION_FORMAT:", utils.BHP_USE_BEST_COMPRESSION_FORMAT)
-	log.Println("  > BHP_EXTERNAL_REQUEST_TIMEOUT:", utils.BHP_EXTERNAL_REQUEST_TIMEOUT)
-	log.Println("  > BHP_EXTERNAL_REQUEST_RETRIES:", utils.BHP_EXTERNAL_REQUEST_RETRIES)
-	log.Println("  > BHP_EXTERNAL_REQUEST_REDIRECTS:", utils.BHP_EXTERNAL_REQUEST_REDIRECTS)
-	log.Println("  > BHP_EXTERNAL_REQUEST_OMIT_HEADERS:", utils.BHP_EXTERNAL_REQUEST_OMIT_HEADERS)
+	log.Println(" > BHP_PORT:", utils.BHP_PORT)
+	log.Println(" > BHP_MAX_CONCURRENCY:", utils.BHP_MAX_CONCURRENCY)
+	log.Println(" > BHP_FORCE_FORMAT:", utils.BHP_FORCE_FORMAT)
+	log.Println(" > BHP_AUTO_DECREMENT_QUALITY:", utils.BHP_AUTO_DECREMENT_QUALITY)
+	log.Println(" > BHP_USE_BEST_COMPRESSION_FORMAT:", utils.BHP_USE_BEST_COMPRESSION_FORMAT)
+	log.Println(" > BHP_EXTERNAL_REQUEST_TIMEOUT:", utils.BHP_EXTERNAL_REQUEST_TIMEOUT)
+	log.Println(" > BHP_EXTERNAL_REQUEST_RETRIES:", utils.BHP_EXTERNAL_REQUEST_RETRIES)
+	log.Println(" > BHP_EXTERNAL_REQUEST_REDIRECTS:", utils.BHP_EXTERNAL_REQUEST_REDIRECTS)
+	log.Println(" > BHP_EXTERNAL_REQUEST_OMIT_HEADERS:", utils.BHP_EXTERNAL_REQUEST_OMIT_HEADERS)
 
 	if utils.BHP_FORCE_FORMAT && utils.BHP_USE_BEST_COMPRESSION_FORMAT {
-		log.Println("Error: BHP_FORCE_FORMAT and BHP_USE_BEST_COMPRESSION_FORMAT cannot be both enabled at the same time.")
-		return
+		log.Panicln("Error: BHP_FORCE_FORMAT and BHP_USE_BEST_COMPRESSION_FORMAT cannot be both enabled at the same time.")
 	}
 
 	if utils.BHP_USE_BEST_COMPRESSION_FORMAT && utils.BHP_AUTO_DECREMENT_QUALITY {
-		log.Println("Error: BHP_USE_BEST_COMPRESSION_FORMAT and BHP_AUTO_DECREMENT_QUALITY cannot be both enabled at the same time.")
-		return
+		log.Panicln("Error: BHP_USE_BEST_COMPRESSION_FORMAT and BHP_AUTO_DECREMENT_QUALITY cannot be both enabled at the same time.")
 	}
 
 	vips.SetLogging(nil, 0) // Suppress vips logs
@@ -56,7 +54,7 @@ func main() {
 
 	log.Println("Server is running on port", utils.BHP_PORT)
 	if err := server.ListenAndServe(); err != nil {
-		log.Println("Error starting server:", err)
+		log.Panicln("Error starting server:", err)
 		return
 	}
 	log.Println("Server stopped")
