@@ -2,6 +2,7 @@ package utils
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"strconv"
 	"strings"
@@ -13,7 +14,7 @@ func FaviconHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Serve a blank favicon
 	if _, err := w.Write([]byte{}); err != nil {
-		fmt.Println("Error writing favicon response:", err)
+		log.Println("Error writing favicon response:", err)
 	}
 }
 
@@ -23,7 +24,7 @@ func ProxyHandler(w http.ResponseWriter, r *http.Request) {
 	bhpParams, err := ParseParams(r)
 	if err != nil {
 		fmt.Fprint(w, "bandwidth-hero-proxy")
-		fmt.Println(err)
+		log.Println(err)
 		return
 	}
 
@@ -32,7 +33,7 @@ func ProxyHandler(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Location", bhpParams.Url)
 		w.WriteHeader(http.StatusFound)
 
-		fmt.Printf("\n> Params:\n > URL: %s\n > Format: %s\n > Quality: %d\n > Greyscale: %t\n> Info:\n > Error: %s\n > Action: Redirecting to original URL\n",
+		log.Printf("\n> Params:\n > URL: %s\n > Format: %s\n > Quality: %d\n > Greyscale: %t\n> Info:\n > Error: %s\n > Action: Redirecting to original URL\n",
 			bhpParams.Url, bhpParams.Format, bhpParams.Quality, bhpParams.Greyscale, err.Error())
 		return
 	}
@@ -69,7 +70,7 @@ func ProxyHandler(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Location", bhpParams.Url)
 		w.WriteHeader(http.StatusFound)
 
-		fmt.Printf("\n> Params:\n > URL: %s\n > Format: %s\n > Quality: %d (%d)\n > Greyscale: %t\n> Info:\n > Error: %s\n > Action: Redirecting to original URL\n",
+		log.Printf("\n> Params:\n > URL: %s\n > Format: %s\n > Quality: %d (%d)\n > Greyscale: %t\n> Info:\n > Error: %s\n > Action: Redirecting to original URL\n",
 			bhpParams.Url, bhpParams.Format, bhpParams.Quality, currentQuality, bhpParams.Greyscale, err.Error())
 		return
 	}
@@ -78,7 +79,7 @@ func ProxyHandler(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Location", bhpParams.Url)
 		w.WriteHeader(http.StatusFound)
 
-		fmt.Printf("\n> Params:\n > URL: %s\n > Format: %s\n > Quality: %d (%d)\n > Greyscale: %t\n> Info:\n > Error: Could not compress image into smaller size than original\n > Action: Redirecting to original URL\n",
+		log.Printf("\n> Params:\n > URL: %s\n > Format: %s\n > Quality: %d (%d)\n > Greyscale: %t\n> Info:\n > Error: Could not compress image into smaller size than original\n > Action: Redirecting to original URL\n",
 			bhpParams.Url, bhpParams.Format, bhpParams.Quality, currentQuality, bhpParams.Greyscale)
 		return
 	}
@@ -90,7 +91,7 @@ func ProxyHandler(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Location", bhpParams.Url)
 		w.WriteHeader(http.StatusFound)
 
-		fmt.Printf("\n> Params:\n > URL: %s\n > Format: %s\n > Quality: %d (%d)\n > Greyscale: %t\n> Info:\n > Error: Compressed image is not smaller than original\n > Action: Redirecting to original URL\n",
+		log.Printf("\n> Params:\n > URL: %s\n > Format: %s\n > Quality: %d (%d)\n > Greyscale: %t\n> Info:\n > Error: Compressed image is not smaller than original\n > Action: Redirecting to original URL\n",
 			bhpParams.Url, bhpParams.Format, bhpParams.Quality, currentQuality, bhpParams.Greyscale)
 		return
 	}
@@ -114,7 +115,7 @@ func ProxyHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	if _, err := w.Write(compressedImage.Bytes); err != nil {
 		http.Error(w, "Failed to write image response: "+err.Error(), http.StatusInternalServerError)
-		fmt.Println("Error writing image response:", err)
+		log.Println("Error writing image response:", err)
 		return
 	}
 
@@ -170,7 +171,7 @@ func ProxyHandler(w http.ResponseWriter, r *http.Request) {
 
 	reqHeadersStr := reqHeaders.String()
 	resHeadersStr := resHeaders.String()
-	fmt.Printf("\n> Params:\n > URL: %s\n > Format: %s\n > Quality: %d (%d)\n > Greyscale: %t\n> Request headers:\n%s> Response headers:\n%s> Info:\n > Using format: %s%s\n > Original size: %s\n > Compressed size: %s ( %.2f%% )\n > Saved size: %s ( %.2f%% )\n",
+	log.Printf("\n> Params:\n > URL: %s\n > Format: %s\n > Quality: %d (%d)\n > Greyscale: %t\n> Request headers:\n%s> Response headers:\n%s> Info:\n > Using format: %s%s\n > Original size: %s\n > Compressed size: %s ( %.2f%% )\n > Saved size: %s ( %.2f%% )\n",
 		bhpParams.Url, bhpParams.Format, bhpParams.Quality, currentQuality, bhpParams.Greyscale,
 		reqHeadersStr, resHeadersStr, compressedImage.Format, formatInfo,
 		originalImageSizeStr,
