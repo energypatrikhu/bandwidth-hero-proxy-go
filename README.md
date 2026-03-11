@@ -18,7 +18,7 @@ Image compression proxy server that reduces bandwidth usage by compressing image
 - **Option 1: Use prebuilt package**
   - a. Pull and run the Docker image:
   ```bash
-  docker run --publish 80:80 ghcr.io/energypatrikhu/bandwidth-hero-proxy-go:latest
+  docker run --publish 8080:80 ghcr.io/energypatrikhu/bandwidth-hero-proxy-go:latest
   ```
 
   - b. Download compose file and run with Docker Compose:
