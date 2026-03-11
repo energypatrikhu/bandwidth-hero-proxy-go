@@ -44,9 +44,13 @@ func main() {
 	})
 	defer vips.Shutdown()
 
+	mux := http.NewServeMux()
+	mux.HandleFunc("GET /favicon.ico", utils.FaviconHandler)
+	mux.HandleFunc("GET /", utils.ProxyHandler)
+
 	server := &http.Server{
 		Addr:    fmt.Sprintf(":%d", utils.BHP_PORT),
-		Handler: http.HandlerFunc(utils.ProxyHandler),
+		Handler: mux,
 	}
 
 	fmt.Println("Server is running on port", utils.BHP_PORT)
