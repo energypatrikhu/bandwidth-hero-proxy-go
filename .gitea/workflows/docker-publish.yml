@@ -100,15 +100,6 @@ jobs:
             type=semver,pattern={{version}},value=${{ steps.next_version.outputs.new_version }}
             type=raw,value=latest
 
-      - name: Delete old package versions
-        continue-on-error: true
-        uses: actions/delete-package-versions@v5
-        with:
-          package-name: ${{ gitea.event.repository.name }}
-          package-type: "container"
-          min-versions-to-keep: 5
-          delete-only-untagged-versions: false
-
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
