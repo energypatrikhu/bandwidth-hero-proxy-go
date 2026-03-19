@@ -14,12 +14,8 @@ on:
           - major
 
 env:
-<<<<<<< HEAD:.gitea/workflows/docker-publish.yml
-  IMAGE_NAME: ${{ gitea.repository }}
-=======
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
->>>>>>> 38e3ba9 (github):.github/workflows/docker-publish.yml
 
 jobs:
   build-and-publish:
@@ -43,13 +39,8 @@ jobs:
           if [ -z "${LATEST_TAG}" ]; then
             LATEST_TAG="v0.0.0"
           fi
-<<<<<<< HEAD:.gitea/workflows/docker-publish.yml
-          echo "latest_tag=${LATEST_TAG}" >> $GITEA_OUTPUT
-          echo "Latest tag: ${LATEST_TAG}"
-=======
           echo "latest_tag=$LATEST_TAG" >> $GITHUB_OUTPUT
           echo "Latest tag: $LATEST_TAG"
->>>>>>> 38e3ba9 (github):.github/workflows/docker-publish.yml
 
       - name: Calculate next version
         id: next_version
@@ -80,13 +71,8 @@ jobs:
           esac
 
           NEW_VERSION="v${MAJOR}.${MINOR}.${PATCH}"
-<<<<<<< HEAD:.gitea/workflows/docker-publish.yml
-          echo "new_version=${NEW_VERSION}" >> $GITEA_OUTPUT
-          echo "Next version: ${NEW_VERSION}"
-=======
           echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
           echo "Next version: $NEW_VERSION"
->>>>>>> 38e3ba9 (github):.github/workflows/docker-publish.yml
 
       - name: Create and push tag
         run: |
@@ -101,15 +87,9 @@ jobs:
       - name: Log in to Container Registry
         uses: docker/login-action@v3
         with:
-<<<<<<< HEAD:.gitea/workflows/docker-publish.yml
-          registry: ${{ vars.PRIVATE_REGISTRY }}
-          username: ${{ gitea.actor }}
-          password: ${{ secrets.TOKEN }}
-=======
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ github.token }}
->>>>>>> 38e3ba9 (github):.github/workflows/docker-publish.yml
 
       - name: Extract metadata
         id: meta
