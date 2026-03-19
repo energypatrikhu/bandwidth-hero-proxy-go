@@ -2,7 +2,7 @@
 
 Image compression proxy server that reduces bandwidth usage by compressing images on-the-fly.
 
-> Typescript version: [bandwidth-hero-proxy](https://gitea.ep24.hu/ephu/bandwidth-hero-proxy) (no longer maintained)
+> Typescript version: [bandwidth-hero-proxy](https://github.com/energypatrikhu/bandwidth-hero-proxy) (no longer maintained)
 
 ## Features
 
@@ -51,7 +51,7 @@ Image compression proxy server that reduces bandwidth usage by compressing image
 - **Option 2: Build it yourself**
   1. Clone the repository:
   ```bash
-  git clone https://gitea.ep24.hu/ephu/bandwidth-hero-proxy-go
+  git clone https://github.com/energypatrikhu/bandwidth-hero-proxy-go
   cd bandwidth-hero-proxy-go
   ```
 
@@ -65,7 +65,7 @@ Image compression proxy server that reduces bandwidth usage by compressing image
 1. Clone the repository, then navigate into the directory
 
 ```bash
-git clone https://gitea.ep24.hu/ephu/bandwidth-hero-proxy-go
+git clone https://github.com/energypatrikhu/bandwidth-hero-proxy-go
 cd bandwidth-hero-proxy-go
 ```
 

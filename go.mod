@@ -1,4 +1,4 @@
-module gitea.ep24.hu/ephu/bandwidth-hero-proxy-go
+module github.com/energypatrikhu/bandwidth-hero-proxy-go
 
 go 1.26.1
 

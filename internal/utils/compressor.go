@@ -3,7 +3,7 @@ package utils
 import (
 	"fmt"
 
-	"gitea.ep24.hu/ephu/bandwidth-hero-proxy-go/third_party/vips"
+	"github.com/energypatrikhu/bandwidth-hero-proxy-go/third_party/vips"
 )
 
 func CompressImage(imageBytes []byte, options CompressImageOptions) (*CompressImageResult, error) {

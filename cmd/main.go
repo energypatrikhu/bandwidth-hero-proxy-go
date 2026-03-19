@@ -5,8 +5,8 @@ import (
 	"log"
 	"net/http"
 
-	"gitea.ep24.hu/ephu/bandwidth-hero-proxy-go/internal/utils"
-	"gitea.ep24.hu/ephu/bandwidth-hero-proxy-go/third_party/vips"
+	"github.com/energypatrikhu/bandwidth-hero-proxy-go/internal/utils"
+	"github.com/energypatrikhu/bandwidth-hero-proxy-go/third_party/vips"
 )
 
 func main() {
