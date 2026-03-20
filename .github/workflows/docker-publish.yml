@@ -90,7 +90,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v6
         with:
-          images: ${{ github.repository }}
+          images: ${{ secrets.DOCKER_USERNAME }}/bandwidth-hero-proxy-go
           tags: |
             type=semver,pattern={{version}},value=${{ steps.next_version.outputs.new_version }}
             type=raw,value=latest
