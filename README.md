@@ -12,6 +12,7 @@ Image compression proxy server that reduces bandwidth usage by compressing image
 - Configurable quality levels
 - Animated GIF support
 - Request retry logic and redirect handling
+- FlareSolverr support for Cloudflare anti-bot challenges
 
 ## Quick Start
 
@@ -44,6 +45,7 @@ Image compression proxy server that reduces bandwidth usage by compressing image
       #   BHP_EXTERNAL_REQUEST_RETRIES: 5
       #   BHP_EXTERNAL_REQUEST_REDIRECTS: 10
       #   BHP_EXTERNAL_REQUEST_OMIT_HEADERS: ""
+      #   BHP_FLARESOLVERR_URL: "http://flaresolverr:8191"
       ports:
         - 8080:80
   ```
@@ -116,17 +118,19 @@ http://localhost/?jpg=1&quality=60&url=https://example.com/image.png
 
 Environment variables:
 
-| Variable                            | Default             | Description                                                  |
-| ----------------------------------- | ------------------- | ------------------------------------------------------------ |
-| `BHP_PORT`                          | `80`                | Server port                                                  |
-| `BHP_MAX_CONCURRENCY`               | Number of CPU cores | Max concurrent tasks                                         |
-| `BHP_FORCE_FORMAT`                  | `false`             | Force selected format, even if the output is bigger          |
-| `BHP_AUTO_DECREMENT_QUALITY`        | `false`             | Auto decrement quality if output is larger than input        |
-| `BHP_USE_BEST_COMPRESSION_FORMAT`   | `false`             | Automatically choose WebP or JPEG based on compression ratio |
-| `BHP_EXTERNAL_REQUEST_TIMEOUT`      | `60s`               | External request timeout                                     |
-| `BHP_EXTERNAL_REQUEST_RETRIES`      | `5`                 | Number of retries for external requests                      |
-| `BHP_EXTERNAL_REQUEST_REDIRECTS`    | `10`                | Maximum redirects for external requests                      |
-| `BHP_EXTERNAL_REQUEST_OMIT_HEADERS` | `[]`                | Headers to omit from external requests                       |
+| Variable                            | Default             | Description                                                     |
+| ----------------------------------- | ------------------- | --------------------------------------------------------------- |
+| `BHP_PORT`                          | `80`                | Server port                                                     |
+| `BHP_MAX_CONCURRENCY`               | Number of CPU cores | Max concurrent tasks                                            |
+| `BHP_FORCE_FORMAT`                  | `false`             | Force selected format, even if the output is bigger             |
+| `BHP_AUTO_DECREMENT_QUALITY`        | `false`             | Auto decrement quality if output is larger than input           |
+| `BHP_USE_BEST_COMPRESSION_FORMAT`   | `false`             | Automatically choose WebP or JPEG based on compression ratio    |
+| `BHP_EXTERNAL_REQUEST_TIMEOUT`      | `60s`               | External request timeout                                        |
+| `BHP_EXTERNAL_REQUEST_RETRIES`      | `5`                 | Number of retries for external requests                         |
+| `BHP_EXTERNAL_REQUEST_REDIRECTS`    | `10`                | Maximum redirects for external requests                         |
+| `BHP_EXTERNAL_REQUEST_OMIT_HEADERS` | `[]`                | Headers to omit from external requests                          |
+| `BHP_FLARESOLVERR_URL`              | `""`                | URL of the FlareSolverr instance to use for anti-bot challenges |
+
 
 Example:
 
@@ -148,6 +152,7 @@ export BHP_USE_BEST_COMPRESSION_FORMAT=true
 - Redirects to original URL if compression fails or doesn't reduce size
 - Preserves animation in GIFs meanwhile it compresses each frame
 - Automatically retries failed requests
+- Uses FlareSolverr to solve Cloudflare anti-bot challenges, if configured
 
 ## Troubleshooting
 
@@ -156,3 +161,4 @@ export BHP_USE_BEST_COMPRESSION_FORMAT=true
 - **URL not provided**: Ensure `url` query is included in the request, if still gives an error, try URL encoding the URL
 - **High memory usage**: Reduce `BHP_MAX_CONCURRENCY`
 - **Timeouts**: Increase `BHP_EXTERNAL_REQUEST_TIMEOUT`
+- **Cloudflare anti-bot challenges**: If using FlareSolverr, ensure `BHP_FLARESOLVERR_URL` is set correctly and the FlareSolverr instance is reachable
