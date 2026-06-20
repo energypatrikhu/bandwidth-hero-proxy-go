@@ -13,5 +13,6 @@ services:
     #   BHP_EXTERNAL_REQUEST_RETRIES: 5
     #   BHP_EXTERNAL_REQUEST_REDIRECTS: 10
     #   BHP_EXTERNAL_REQUEST_OMIT_HEADERS: ""
+    #   BHP_FLARESOLVERR_URL: "http://flaresolverr:8191"
     ports:
       - 8080:80

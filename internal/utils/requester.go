@@ -64,6 +64,28 @@ reqHeaderLoop:
 		}
 	})
 
+	// If a FlareSolverr instance is configured, use it to solve any
+	// anti-bot/Cloudflare challenge for this host and reuse the resulting
+	// cookies + User-Agent for the actual fetch below.
+	if strings.TrimSpace(BHP_FLARESOLVERR_URL) != "" {
+		solution, err := SolveWithFlareSolverr(url, duration)
+		if err != nil {
+			return nil, fmt.Errorf("flaresolverr failed to solve challenge for %s: %v", url, err)
+		}
+
+		if solution.UserAgent != "" {
+			requestHeaders["user-agent"] = solution.UserAgent
+		}
+
+		if len(solution.Cookies) > 0 {
+			cookiePairs := make([]string, 0, len(solution.Cookies))
+			for _, cookie := range solution.Cookies {
+				cookiePairs = append(cookiePairs, fmt.Sprintf("%s=%s", cookie.Name, cookie.Value))
+			}
+			requestHeaders["cookie"] = strings.Join(cookiePairs, "; ")
+		}
+	}
+
 	var resp *http.Response
 	var data []byte
 	var lastErr error

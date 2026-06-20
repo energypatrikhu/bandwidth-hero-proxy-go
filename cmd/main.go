@@ -23,6 +23,13 @@ func main() {
 	log.Println(" > BHP_EXTERNAL_REQUEST_REDIRECTS:", utils.BHP_EXTERNAL_REQUEST_REDIRECTS)
 	log.Println(" > BHP_EXTERNAL_REQUEST_OMIT_HEADERS:", utils.BHP_EXTERNAL_REQUEST_OMIT_HEADERS)
 
+	if utils.BHP_FLARESOLVERR_URL != "" {
+		log.Println(" > BHP_FLARESOLVERR_URL:", utils.BHP_FLARESOLVERR_URL)
+		log.Println("Info: BHP_FLARESOLVERR_URL is set, using FlareSolverr to solve any Cloudflare/JS challenge")
+	} else {
+		log.Println(" > BHP_FLARESOLVERR_URL:", "not set")
+	}
+
 	if utils.BHP_FORCE_FORMAT && utils.BHP_USE_BEST_COMPRESSION_FORMAT {
 		log.Panicln("Error: BHP_FORCE_FORMAT and BHP_USE_BEST_COMPRESSION_FORMAT cannot be both enabled at the same time.")
 	}
