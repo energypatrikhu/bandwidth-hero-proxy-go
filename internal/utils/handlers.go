@@ -45,9 +45,10 @@ func ProxyHandler(w http.ResponseWriter, r *http.Request) {
 	var compressedImage *CompressImageResult
 	if BHP_USE_BEST_COMPRESSION_FORMAT && !isAnimated {
 		compressedImage, err = CompressImageToBestFormat(imageResponse.Bytes, CompressImageToBestFormatOptions{
-			InputFormat: imageFormat,
-			Grayscale:   bhpParams.Grayscale,
-			Quality:     bhpParams.Quality,
+			InputFormat:   imageFormat,
+			Grayscale:     bhpParams.Grayscale,
+			Quality:       bhpParams.Quality,
+			AllowAnimated: !BHP_DISABLE_ANIMATED_IMAGES,
 		})
 	} else if BHP_AUTO_DECREMENT_QUALITY && !isAnimated {
 		compressedImage, currentQuality, err = CompressImageWithAutoQualityDecrement(imageResponse.Bytes, CompressImageWithAutoQualityDecrementOptions{
@@ -56,14 +57,16 @@ func ProxyHandler(w http.ResponseWriter, r *http.Request) {
 			Grayscale:         bhpParams.Grayscale,
 			InitialQuality:    bhpParams.Quality,
 			OriginalImageSize: originalImageSize,
+			AllowAnimated:     !BHP_DISABLE_ANIMATED_IMAGES,
 		})
 	} else {
 		compressedImage, err = CompressImage(imageResponse.Bytes, CompressImageOptions{
-			InputFormat: imageFormat,
-			IsAnimated:  isAnimated,
-			Format:      bhpParams.Format,
-			Grayscale:   bhpParams.Grayscale,
-			Quality:     bhpParams.Quality,
+			InputFormat:   imageFormat,
+			IsAnimated:    isAnimated,
+			Format:        bhpParams.Format,
+			Grayscale:     bhpParams.Grayscale,
+			Quality:       bhpParams.Quality,
+			AllowAnimated: !BHP_DISABLE_ANIMATED_IMAGES,
 		})
 	}
 	if err != nil {

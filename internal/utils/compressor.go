@@ -23,8 +23,8 @@ func CompressImage(imageBytes []byte, options CompressImageOptions) (*CompressIm
 	}
 	defer vipsImage.Close()
 
-	if !options.IsAnimated && vipsImage.Pages() > 1 {
-		return nil, fmt.Errorf("failed to export image buffer, animated images are disabled")
+	if !options.AllowAnimated && vipsImage.Pages() > 1 {
+		return nil, fmt.Errorf("failed to use image buffer, animated images are disabled")
 	}
 
 	vipsImage.RemoveICCProfile()
@@ -71,10 +71,11 @@ func CompressImageWithAutoQualityDecrement(imageBytes []byte, options CompressIm
 
 	// Reuse options struct to reduce allocations
 	compressOpts := CompressImageOptions{
-		InputFormat: options.InputFormat,
-		Format:      options.Format,
-		Grayscale:   options.Grayscale,
-		IsAnimated:  false,
+		InputFormat:   options.InputFormat,
+		Format:        options.Format,
+		Grayscale:     options.Grayscale,
+		IsAnimated:    false,
+		AllowAnimated: options.AllowAnimated,
 	}
 
 	// Try compressing the image, decreasing quality by 5 each time until we find a smaller size or reach quality - 10
@@ -110,22 +111,24 @@ func CompressImageToBestFormat(imageBytes []byte, options CompressImageToBestFor
 
 	go func() {
 		webpImageBytes, errWebp := CompressImage(imageBytes, CompressImageOptions{
-			Format:      "webp",
-			InputFormat: options.InputFormat,
-			Grayscale:   options.Grayscale,
-			Quality:     options.Quality,
-			IsAnimated:  false,
+			Format:        "webp",
+			InputFormat:   options.InputFormat,
+			Grayscale:     options.Grayscale,
+			Quality:       options.Quality,
+			IsAnimated:    false,
+			AllowAnimated: options.AllowAnimated,
 		})
 		webpCh <- result{resp: webpImageBytes, err: errWebp}
 	}()
 
 	go func() {
 		jpegImageBytes, errJpeg := CompressImage(imageBytes, CompressImageOptions{
-			Format:      "jpeg",
-			InputFormat: options.InputFormat,
-			Grayscale:   options.Grayscale,
-			Quality:     options.Quality,
-			IsAnimated:  false,
+			Format:        "jpeg",
+			InputFormat:   options.InputFormat,
+			Grayscale:     options.Grayscale,
+			Quality:       options.Quality,
+			IsAnimated:    false,
+			AllowAnimated: options.AllowAnimated,
 		})
 		jpegCh <- result{resp: jpegImageBytes, err: errJpeg}
 	}()

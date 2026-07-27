@@ -23,11 +23,12 @@ type CompressImageResult struct {
 }
 
 type CompressImageOptions struct {
-	InputFormat string
-	IsAnimated  bool
-	Format      string
-	Grayscale   bool
-	Quality     int
+	InputFormat   string
+	IsAnimated    bool
+	AllowAnimated bool
+	Format        string
+	Grayscale     bool
+	Quality       int
 }
 
 type CompressImageWithAutoQualityDecrementOptions struct {
@@ -36,10 +37,12 @@ type CompressImageWithAutoQualityDecrementOptions struct {
 	Grayscale         bool
 	InitialQuality    int
 	OriginalImageSize int
+	AllowAnimated     bool
 }
 
 type CompressImageToBestFormatOptions struct {
-	InputFormat string
-	Grayscale   bool
-	Quality     int
+	InputFormat   string
+	Grayscale     bool
+	Quality       int
+	AllowAnimated bool
 }

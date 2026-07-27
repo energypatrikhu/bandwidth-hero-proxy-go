@@ -46,6 +46,7 @@ Image compression proxy server that reduces bandwidth usage by compressing image
       #   BHP_EXTERNAL_REQUEST_REDIRECTS: 10
       #   BHP_EXTERNAL_REQUEST_OMIT_HEADERS: ""
       #   BHP_FLARESOLVERR_URL: "http://flaresolverr:8191"
+      #   BHP_DISABLE_ANIMATED_IMAGES: false
       ports:
         - 8080:80
   ```
@@ -130,6 +131,7 @@ Environment variables:
 | `BHP_EXTERNAL_REQUEST_REDIRECTS`    | `10`                | Maximum redirects for external requests                         |
 | `BHP_EXTERNAL_REQUEST_OMIT_HEADERS` | `[]`                | Headers to omit from external requests                          |
 | `BHP_FLARESOLVERR_URL`              | `""`                | URL of the FlareSolverr instance to use for anti-bot challenges |
+| `BHP_DISABLE_ANIMATED_IMAGES`       | `false`             | Disable compression of animated images                          |
 
 
 Example:
@@ -153,6 +155,7 @@ export BHP_USE_BEST_COMPRESSION_FORMAT=true
 - Preserves animation in GIFs meanwhile it compresses each frame
 - Automatically retries failed requests
 - Uses FlareSolverr to solve Cloudflare anti-bot challenges, if configured
+- Won't compress animated images, if configured
 
 ## Troubleshooting
 
