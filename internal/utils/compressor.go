@@ -23,6 +23,10 @@ func CompressImage(imageBytes []byte, options CompressImageOptions) (*CompressIm
 	}
 	defer vipsImage.Close()
 
+	if !options.IsAnimated && vipsImage.Pages() > 1 {
+		return nil, fmt.Errorf("failed to export image buffer, animated images are disabled")
+	}
+
 	vipsImage.RemoveICCProfile()
 
 	if options.Grayscale {
