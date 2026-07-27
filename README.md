@@ -25,7 +25,7 @@ Image compression proxy server that reduces bandwidth usage by compressing image
   - b. Download compose file and run with Docker Compose:
   ```bash
   curl -O https://raw.githubusercontent.com/energypatrikhu/bandwidth-hero-proxy-go/main/docker-compose.yml
-  docker-compose up -d
+  docker compose up -d
   ```
 
   - c. Copy docker compose manually into your existing compose file:
@@ -60,7 +60,7 @@ Image compression proxy server that reduces bandwidth usage by compressing image
 
   2. Build and compose up:
   ```bash
-  docker-compose up --build
+  docker compose up --build
   ```
 
 ## Development
@@ -92,7 +92,7 @@ go build -o bandwidth-hero-proxy main.go
 
 ## Usage
 
-> Note: It is recommended to **place** the `url` query to the **end of the request** and **url encode** it, to prevent the query strings to mix up and get placed into the wrong request.
+> Note: It is recommended to **place** the `url` query to the **end of the request** and **url encode** it, to prevent the query strings being mixed up and get placed into the wrong request.
 
 ```
 http://your-proxy-server/?quality=<QUALITY>&jpg=<0|1>&grayscale=<0|1>&url=<IMAGE_URL>
