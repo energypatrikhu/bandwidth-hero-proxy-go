@@ -1,4 +1,4 @@
-FROM golang:latest AS builder
+FROM golang:trixie AS builder
 
 WORKDIR /src
 
@@ -28,7 +28,7 @@ RUN go build \
   -o /bandwidth-hero-proxy \
   ./cmd/main.go
 
-FROM debian:stable-slim
+FROM debian:trixie-slim
 
 ENV DEBIAN_FRONTEND=noninteractive
 
