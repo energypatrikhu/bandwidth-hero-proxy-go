@@ -42,9 +42,9 @@ func main() {
 	vips.SetLogging(nil, 0) // Suppress vips logs
 	vips.Startup(&vips.Config{
 		ConcurrencyLevel: utils.BHP_MAX_CONCURRENCY, // Set concurrency level to BHP_MAX_CONCURRENCY
-		MaxCacheFiles:    0,                         // Set max cache files to 0 (no limit)
-		MaxCacheMem:      0,                         // Set max cache memory to 0 (no limit)
-		MaxCacheSize:     0,                         // Set max cache size to 0 (no limit)
+		MaxCacheFiles:    0,                         // Set max cache files to 0 (disable)
+		MaxCacheMem:      0,                         // Set max cache memory to 0 (disable)
+		MaxCacheSize:     0,                         // Set max cache size to 0 (disable)
 		ReportLeaks:      false,                     // Disable leak reporting
 		CacheTrace:       false,                     // Disable cache tracing
 		VectorEnabled:    true,                      // Enable vector support
