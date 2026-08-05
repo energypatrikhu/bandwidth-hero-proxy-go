@@ -23,7 +23,7 @@ func CompressImage(imageBytes []byte, options CompressImageOptions) (*CompressIm
 	}
 	defer vipsImage.Close()
 
-	if !options.AllowAnimated && vipsImage.Pages() > 1 {
+	if BHP_DISABLE_ANIMATED_IMAGES && vipsImage.Pages() > 1 {
 		return nil, fmt.Errorf("failed to use image buffer, animated images are disabled")
 	}
 
@@ -38,22 +38,27 @@ func CompressImage(imageBytes []byte, options CompressImageOptions) (*CompressIm
 	switch options.Format {
 	case "webp":
 		compressedImageBytes, vipsError = vipsImage.WebpsaveBuffer(&vips.WebpsaveBufferOptions{
-			Q:        options.Quality,
-			Lossless: false,
-			Keep:     vips.KeepNone,
-			Effort:   6,
+			Q:    options.Quality,
+			Keep: vips.KeepNone,
+
+			Lossless:       BHP_WEBP_LOSSLESS,
+			Effort:         BHP_WEBP_EFFORT,
+			SmartSubsample: BHP_WEBP_SMART_SUBSAMPLE,
+			SmartDeblock:   BHP_WEBP_SMART_DEBLOCK,
+			Passes:         BHP_WEBP_PASSES,
 		})
 	case "jpeg":
 		compressedImageBytes, vipsError = vipsImage.JpegsaveBuffer(&vips.JpegsaveBufferOptions{
-			Q:                  options.Quality,
-			OptimizeCoding:     true,
-			OptimizeScans:      true,
-			Keep:               vips.KeepNone,
-			Interlace:          false,
-			SubsampleMode:      vips.SubsampleAuto,
-			TrellisQuant:       true,
-			OvershootDeringing: true,
-			QuantTable:         3,
+			Q:             options.Quality,
+			Keep:          vips.KeepNone,
+			SubsampleMode: vips.SubsampleAuto,
+
+			OptimizeCoding:     BHP_JPEG_OPTIMIZE_CODING,
+			OptimizeScans:      BHP_JPEG_OPTIMIZE_SCANS,
+			Interlace:          BHP_JPEG_INTERLACE,
+			TrellisQuant:       BHP_JPEG_TRELLIS_QUANT,
+			OvershootDeringing: BHP_JPEG_OVERSHOOT_DERINGING,
+			QuantTable:         BHP_JPEG_QUANT_TABLE,
 		})
 	}
 
@@ -71,11 +76,10 @@ func CompressImageWithAutoQualityDecrement(imageBytes []byte, options CompressIm
 
 	// Reuse options struct to reduce allocations
 	compressOpts := CompressImageOptions{
-		InputFormat:   options.InputFormat,
-		Format:        options.Format,
-		Grayscale:     options.Grayscale,
-		IsAnimated:    false,
-		AllowAnimated: options.AllowAnimated,
+		InputFormat: options.InputFormat,
+		Format:      options.Format,
+		Grayscale:   options.Grayscale,
+		IsAnimated:  false,
 	}
 
 	// Try compressing the image, decreasing quality by 5 each time until we find a smaller size or reach quality - 10
@@ -111,24 +115,22 @@ func CompressImageToBestFormat(imageBytes []byte, options CompressImageToBestFor
 
 	go func() {
 		webpImageBytes, errWebp := CompressImage(imageBytes, CompressImageOptions{
-			Format:        "webp",
-			InputFormat:   options.InputFormat,
-			Grayscale:     options.Grayscale,
-			Quality:       options.Quality,
-			IsAnimated:    false,
-			AllowAnimated: options.AllowAnimated,
+			Format:      "webp",
+			InputFormat: options.InputFormat,
+			Grayscale:   options.Grayscale,
+			Quality:     options.Quality,
+			IsAnimated:  false,
 		})
 		webpCh <- result{resp: webpImageBytes, err: errWebp}
 	}()
 
 	go func() {
 		jpegImageBytes, errJpeg := CompressImage(imageBytes, CompressImageOptions{
-			Format:        "jpeg",
-			InputFormat:   options.InputFormat,
-			Grayscale:     options.Grayscale,
-			Quality:       options.Quality,
-			IsAnimated:    false,
-			AllowAnimated: options.AllowAnimated,
+			Format:      "jpeg",
+			InputFormat: options.InputFormat,
+			Grayscale:   options.Grayscale,
+			Quality:     options.Quality,
+			IsAnimated:  false,
 		})
 		jpegCh <- result{resp: jpegImageBytes, err: errJpeg}
 	}()

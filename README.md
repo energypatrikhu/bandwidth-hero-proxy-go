@@ -47,6 +47,19 @@ Image compression proxy server that reduces bandwidth usage by compressing image
       #   BHP_EXTERNAL_REQUEST_OMIT_HEADERS: ""
       #   BHP_FLARESOLVERR_URL: "http://flaresolverr:8191"
       #   BHP_DISABLE_ANIMATED_IMAGES: false
+      #   # Webp options
+      #   BHP_WEBP_LOSSLESS: false
+      #   BHP_WEBP_EFFORT: 6
+      #   BHP_WEBP_SMART_SUBSAMPLE: true
+      #   BHP_WEBP_SMART_DEBLOCK: true
+      #   BHP_WEBP_PASSES: 10
+      #   # Jpeg options
+      #   BHP_JPEG_OPTIMIZE_CODING: true
+      #   BHP_JPEG_OPTIMIZE_SCANS: true
+      #   BHP_JPEG_INTERLACE: false
+      #   BHP_JPEG_TRELLIS_QUANT: true
+      #   BHP_JPEG_OVERSHOOT_DERINGING: true
+      #   BHP_JPEG_QUANT_TABLE: 3
       ports:
         - 8080:80
   ```
@@ -132,7 +145,17 @@ Environment variables:
 | `BHP_EXTERNAL_REQUEST_OMIT_HEADERS` | `[]`                | Headers to omit from external requests                          |
 | `BHP_FLARESOLVERR_URL`              | `""`                | URL of the FlareSolverr instance to use for anti-bot challenges |
 | `BHP_DISABLE_ANIMATED_IMAGES`       | `false`             | Disable compression of animated images                          |
-
+| `BHP_WEBP_LOSSLESS`                 | `false`             | Enable lossless compression                                     |
+| `BHP_WEBP_EFFORT`                   | `6`                 | Level of CPU effort to reduce file size                         |
+| `BHP_WEBP_SMART_SUBSAMPLE`          | `true`              | Enable high quality chroma subsampling                          |
+| `BHP_WEBP_SMART_DEBLOCK`            | `true`              | Enable auto-adjusting of the deblocking filter                  |
+| `BHP_WEBP_PASSES`                   | `10`                | Number of entropy-analysis passes (in [1..10])                  |
+| `BHP_JPEG_OPTIMIZE_CODING`          | `true`              | Compute optimal Huffman coding tables                           |
+| `BHP_JPEG_OPTIMIZE_SCANS`           | `true`              | Split spectrum of DCT coefficients into separate scans          |
+| `BHP_JPEG_INTERLACE`                | `false`             | Generate an interlaced (progressive) jpeg                       |
+| `BHP_JPEG_TRELLIS_QUANT`            | `true`              | Apply trellis quantisation to each 8x8 block                    |
+| `BHP_JPEG_OVERSHOOT_DERINGING`      | `true`              | Apply overshooting to samples with extreme values               |
+| `BHP_JPEG_QUANT_TABLE`              | `3`                 | Use predefined quantization table with given index              |
 
 Example:
 
