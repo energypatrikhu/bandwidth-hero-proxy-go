@@ -25,6 +25,7 @@ RUN go build \
   -v \
   -tags=vips \
   -ldflags="-s -w" \
+  -trimpath \
   -o /bandwidth-hero-proxy \
   ./cmd/main.go
 
@@ -39,6 +40,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   && rm -rf /var/lib/apt/lists/*
 
 ENV LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libjemalloc.so.2
+ENV GOMEMLIMIT=512MiB
 
 COPY --from=builder /bandwidth-hero-proxy /bandwidth-hero-proxy
 
