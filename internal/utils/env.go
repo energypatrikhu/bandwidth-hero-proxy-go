@@ -51,10 +51,10 @@ var ConfigInstance = Config{
 	ExternalRequestOmitHeaders: GetEnv("BHP_EXTERNAL_REQUEST_OMIT_HEADERS", []string{}),
 
 	WebPLossless:       GetEnv("BHP_WEBP_LOSSLESS", false),
-	WebPEffort:         GetEnv("BHP_WEBP_EFFORT", 6),
+	WebPEffort:         GetEnv("BHP_WEBP_EFFORT", 4),
 	WebPSmartSubsample: GetEnv("BHP_WEBP_SMART_SUBSAMPLE", true),
 	WebPSmartDeblock:   GetEnv("BHP_WEBP_SMART_DEBLOCK", true),
-	WebPPasses:         GetEnv("BHP_WEBP_PASSES", 10),
+	WebPPasses:         GetEnv("BHP_WEBP_PASSES", 2),
 
 	JPEGOptimizeCoding:     GetEnv("BHP_JPEG_OPTIMIZE_CODING", true),
 	JPEGOptimizeScans:      GetEnv("BHP_JPEG_OPTIMIZE_SCANS", true),

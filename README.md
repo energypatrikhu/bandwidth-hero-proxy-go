@@ -146,10 +146,10 @@ Environment variables:
 | `BHP_EXTERNAL_REQUEST_REDIRECTS`    | `10`                | Maximum redirects for external requests                         |
 | `BHP_EXTERNAL_REQUEST_OMIT_HEADERS` | `[]`                | Headers to omit from external requests                          |
 | `BHP_WEBP_LOSSLESS`                 | `false`             | Enable lossless compression                                     |
-| `BHP_WEBP_EFFORT`                   | `6`                 | Level of CPU effort to reduce file size                         |
+| `BHP_WEBP_EFFORT`                   | `4`                 | Level of CPU effort to reduce file size                         |
 | `BHP_WEBP_SMART_SUBSAMPLE`          | `true`              | Enable high quality chroma subsampling                          |
 | `BHP_WEBP_SMART_DEBLOCK`            | `true`              | Enable auto-adjusting of the deblocking filter                  |
-| `BHP_WEBP_PASSES`                   | `10`                | Number of entropy-analysis passes (in [1..10])                  |
+| `BHP_WEBP_PASSES`                   | `2`                 | Number of entropy-analysis passes (in [1..10])                  |
 | `BHP_JPEG_OPTIMIZE_CODING`          | `true`              | Compute optimal Huffman coding tables                           |
 | `BHP_JPEG_OPTIMIZE_SCANS`           | `true`              | Split spectrum of DCT coefficients into separate scans          |
 | `BHP_JPEG_INTERLACE`                | `false`             | Generate an interlaced (progressive) jpeg                       |
