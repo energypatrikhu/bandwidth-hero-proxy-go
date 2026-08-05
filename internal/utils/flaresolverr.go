@@ -40,7 +40,7 @@ type flareSolverrResponse struct {
 // to load targetURL in a real browser, solving any Cloudflare/JS challenge
 // along the way, and returns the resulting cookies + User-Agent.
 func SolveWithFlareSolverr(targetURL string, timeout time.Duration) (*flareSolverrSolution, error) {
-	if strings.TrimSpace(BHP_FLARESOLVERR_URL) == "" {
+	if strings.TrimSpace(ConfigInstance.FlareSolverrURL) == "" {
 		return nil, fmt.Errorf("BHP_FLARESOLVERR_URL is not configured")
 	}
 
@@ -55,7 +55,7 @@ func SolveWithFlareSolverr(targetURL string, timeout time.Duration) (*flareSolve
 		return nil, fmt.Errorf("failed to marshal flaresolverr request: %v", err)
 	}
 
-	endpoint := strings.TrimRight(BHP_FLARESOLVERR_URL, "/") + "/v1"
+	endpoint := strings.TrimRight(ConfigInstance.FlareSolverrURL, "/") + "/v1"
 
 	req, err := http.NewRequest("POST", endpoint, bytes.NewReader(payloadBytes))
 	if err != nil {

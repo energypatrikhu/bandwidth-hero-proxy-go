@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"reflect"
 
 	"github.com/energypatrikhu/bandwidth-hero-proxy-go/internal/utils"
 	"github.com/energypatrikhu/bandwidth-hero-proxy-go/third_party/vips"
@@ -13,41 +14,41 @@ func main() {
 	log.Println("Starting Bandwidth Hero Proxy...")
 
 	log.Println("> Config:")
-	log.Println(" > BHP_PORT:", utils.BHP_PORT)
-	log.Println(" > BHP_MAX_CONCURRENCY:", utils.BHP_MAX_CONCURRENCY)
-	log.Println(" > BHP_FORCE_FORMAT:", utils.BHP_FORCE_FORMAT)
-	log.Println(" > BHP_AUTO_DECREMENT_QUALITY:", utils.BHP_AUTO_DECREMENT_QUALITY)
-	log.Println(" > BHP_USE_BEST_COMPRESSION_FORMAT:", utils.BHP_USE_BEST_COMPRESSION_FORMAT)
-	log.Println(" > BHP_EXTERNAL_REQUEST_TIMEOUT:", utils.BHP_EXTERNAL_REQUEST_TIMEOUT)
-	log.Println(" > BHP_EXTERNAL_REQUEST_RETRIES:", utils.BHP_EXTERNAL_REQUEST_RETRIES)
-	log.Println(" > BHP_EXTERNAL_REQUEST_REDIRECTS:", utils.BHP_EXTERNAL_REQUEST_REDIRECTS)
-	log.Println(" > BHP_EXTERNAL_REQUEST_OMIT_HEADERS:", utils.BHP_EXTERNAL_REQUEST_OMIT_HEADERS)
-	log.Println(" > BHP_DISABLE_ANIMATED_IMAGES:", utils.BHP_DISABLE_ANIMATED_IMAGES)
 
-	if utils.BHP_FLARESOLVERR_URL != "" {
-		log.Println(" > BHP_FLARESOLVERR_URL:", utils.BHP_FLARESOLVERR_URL)
-		log.Println("Info: BHP_FLARESOLVERR_URL is set, using FlareSolverr to solve any Cloudflare/JS challenge")
-	} else {
-		log.Println(" > BHP_FLARESOLVERR_URL:", "not set")
+	t := reflect.TypeFor[utils.Config]()
+	v := reflect.ValueOf(utils.ConfigInstance)
+
+	for _, field := range reflect.VisibleFields(t) {
+		name := field.Tag.Get("env")
+		if name == "" {
+			name = field.Name
+		}
+
+		value := v.FieldByName(field.Name).Interface()
+		if field.Type.Kind() == reflect.String && value == "" {
+			value = "not set"
+		}
+
+		log.Printf(" > %s: %v", name, value)
 	}
 
-	if utils.BHP_FORCE_FORMAT && utils.BHP_USE_BEST_COMPRESSION_FORMAT {
+	if utils.ConfigInstance.ForceFormat && utils.ConfigInstance.UseBestCompression {
 		log.Panicln("Error: BHP_FORCE_FORMAT and BHP_USE_BEST_COMPRESSION_FORMAT cannot be both enabled at the same time.")
 	}
 
-	if utils.BHP_USE_BEST_COMPRESSION_FORMAT && utils.BHP_AUTO_DECREMENT_QUALITY {
+	if utils.ConfigInstance.UseBestCompression && utils.ConfigInstance.AutoDecrementQuality {
 		log.Panicln("Error: BHP_USE_BEST_COMPRESSION_FORMAT and BHP_AUTO_DECREMENT_QUALITY cannot be both enabled at the same time.")
 	}
 
 	vips.SetLogging(nil, 0) // Suppress vips logs
 	vips.Startup(&vips.Config{
-		ConcurrencyLevel: utils.BHP_MAX_CONCURRENCY, // Set concurrency level to BHP_MAX_CONCURRENCY
-		MaxCacheFiles:    0,                         // Set max cache files to 0 (disable)
-		MaxCacheMem:      0,                         // Set max cache memory to 0 (disable)
-		MaxCacheSize:     0,                         // Set max cache size to 0 (disable)
-		ReportLeaks:      false,                     // Disable leak reporting
-		CacheTrace:       false,                     // Disable cache tracing
-		VectorEnabled:    true,                      // Enable vector support
+		ConcurrencyLevel: utils.ConfigInstance.VipsMaxConcurrency, // Set concurrency level to BHP_MAX_CONCURRENCY
+		MaxCacheFiles:    0,                                       // Set max cache files to 0 (disable)
+		MaxCacheMem:      0,                                       // Set max cache memory to 0 (disable)
+		MaxCacheSize:     0,                                       // Set max cache size to 0 (disable)
+		ReportLeaks:      false,                                   // Disable leak reporting
+		CacheTrace:       false,                                   // Disable cache tracing
+		VectorEnabled:    true,                                    // Enable vector support
 	})
 	defer vips.Shutdown()
 
@@ -56,11 +57,11 @@ func main() {
 	mux.HandleFunc("GET /", utils.ProxyHandler)
 
 	server := &http.Server{
-		Addr:    fmt.Sprintf(":%d", utils.BHP_PORT),
+		Addr:    fmt.Sprintf(":%d", utils.ConfigInstance.Port),
 		Handler: mux,
 	}
 
-	log.Println("Server is running on port", utils.BHP_PORT)
+	log.Println("Server is running on port", utils.ConfigInstance.Port)
 	if err := server.ListenAndServe(); err != nil {
 		log.Panicln("Error starting server:", err)
 		return

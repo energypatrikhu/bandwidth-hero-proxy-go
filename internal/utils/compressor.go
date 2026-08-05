@@ -23,7 +23,7 @@ func CompressImage(imageBytes []byte, options CompressImageOptions) (*CompressIm
 	}
 	defer vipsImage.Close()
 
-	if BHP_DISABLE_ANIMATED_IMAGES && vipsImage.Pages() > 1 {
+	if ConfigInstance.DisableAnimatedImages && vipsImage.Pages() > 1 {
 		return nil, fmt.Errorf("failed to use image buffer, animated images are disabled")
 	}
 
@@ -41,11 +41,11 @@ func CompressImage(imageBytes []byte, options CompressImageOptions) (*CompressIm
 			Q:    options.Quality,
 			Keep: vips.KeepNone,
 
-			Lossless:       BHP_WEBP_LOSSLESS,
-			Effort:         BHP_WEBP_EFFORT,
-			SmartSubsample: BHP_WEBP_SMART_SUBSAMPLE,
-			SmartDeblock:   BHP_WEBP_SMART_DEBLOCK,
-			Passes:         BHP_WEBP_PASSES,
+			Lossless:       ConfigInstance.WebPLossless,
+			Effort:         ConfigInstance.WebPEffort,
+			SmartSubsample: ConfigInstance.WebPSmartSubsample,
+			SmartDeblock:   ConfigInstance.WebPSmartDeblock,
+			Passes:         ConfigInstance.WebPPasses,
 		})
 	case "jpeg":
 		compressedImageBytes, vipsError = vipsImage.JpegsaveBuffer(&vips.JpegsaveBufferOptions{
@@ -53,12 +53,12 @@ func CompressImage(imageBytes []byte, options CompressImageOptions) (*CompressIm
 			Keep:          vips.KeepNone,
 			SubsampleMode: vips.SubsampleAuto,
 
-			OptimizeCoding:     BHP_JPEG_OPTIMIZE_CODING,
-			OptimizeScans:      BHP_JPEG_OPTIMIZE_SCANS,
-			Interlace:          BHP_JPEG_INTERLACE,
-			TrellisQuant:       BHP_JPEG_TRELLIS_QUANT,
-			OvershootDeringing: BHP_JPEG_OVERSHOOT_DERINGING,
-			QuantTable:         BHP_JPEG_QUANT_TABLE,
+			OptimizeCoding:     ConfigInstance.JPEGOptimizeCoding,
+			OptimizeScans:      ConfigInstance.JPEGOptimizeScans,
+			Interlace:          ConfigInstance.JPEGInterlace,
+			TrellisQuant:       ConfigInstance.JPEGTrellisQuant,
+			OvershootDeringing: ConfigInstance.JPEGOvershootDeringing,
+			QuantTable:         ConfigInstance.JPEGQuantTable,
 		})
 	}
 

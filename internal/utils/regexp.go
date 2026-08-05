@@ -12,5 +12,5 @@ func compileOmittedHeaders(omitHeaders []string) []*regexp.Regexp {
 
 var (
 	inputUrlRegex         = regexp.MustCompile(`(?i)^http://1\.1\.\d+\.\d+/bmi/(https?://)?`)
-	omittedHeadersRegexes = compileOmittedHeaders(BHP_EXTERNAL_REQUEST_OMIT_HEADERS)
+	omittedHeadersRegexes = compileOmittedHeaders(ConfigInstance.ExternalRequestOmitHeaders)
 )

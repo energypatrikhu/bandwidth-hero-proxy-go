@@ -43,13 +43,13 @@ func ProxyHandler(w http.ResponseWriter, r *http.Request) {
 
 	currentQuality := bhpParams.Quality
 	var compressedImage *CompressImageResult
-	if BHP_USE_BEST_COMPRESSION_FORMAT && !isAnimated {
+	if ConfigInstance.UseBestCompression && !isAnimated {
 		compressedImage, err = CompressImageToBestFormat(imageResponse.Bytes, CompressImageToBestFormatOptions{
 			InputFormat: imageFormat,
 			Grayscale:   bhpParams.Grayscale,
 			Quality:     bhpParams.Quality,
 		})
-	} else if BHP_AUTO_DECREMENT_QUALITY && !isAnimated {
+	} else if ConfigInstance.AutoDecrementQuality && !isAnimated {
 		compressedImage, currentQuality, err = CompressImageWithAutoQualityDecrement(imageResponse.Bytes, CompressImageWithAutoQualityDecrementOptions{
 			InputFormat:       imageFormat,
 			Format:            bhpParams.Format,
@@ -75,7 +75,7 @@ func ProxyHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !BHP_FORCE_FORMAT && compressedImage.Format == "" {
+	if !ConfigInstance.ForceFormat && compressedImage.Format == "" {
 		w.Header().Set("Location", bhpParams.Url)
 		w.WriteHeader(http.StatusFound)
 
@@ -87,7 +87,7 @@ func ProxyHandler(w http.ResponseWriter, r *http.Request) {
 	compressedImageSize := len(compressedImage.Bytes)
 	savedSize := originalImageSize - compressedImageSize
 
-	if !BHP_FORCE_FORMAT && savedSize <= 0 {
+	if !ConfigInstance.ForceFormat && savedSize <= 0 {
 		w.Header().Set("Location", bhpParams.Url)
 		w.WriteHeader(http.StatusFound)
 
@@ -154,10 +154,10 @@ func ProxyHandler(w http.ResponseWriter, r *http.Request) {
 	savedSizePerc := CalcPercentage(int64(savedSize), int64(originalImageSize))
 
 	formatModifiers := make([]string, 0, 3)
-	if BHP_FORCE_FORMAT {
+	if ConfigInstance.ForceFormat {
 		formatModifiers = append(formatModifiers, "forced")
 	}
-	if BHP_USE_BEST_COMPRESSION_FORMAT {
+	if ConfigInstance.UseBestCompression {
 		formatModifiers = append(formatModifiers, "auto")
 	}
 	if isAnimated {

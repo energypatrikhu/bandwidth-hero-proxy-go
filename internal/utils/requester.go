@@ -41,7 +41,7 @@ reqHeaderLoop:
 	// Set Accept-Encoding header to handle all compression types we support
 	requestHeaders["accept-encoding"] = "br, zstd, gzip, deflate, lz4, xz, identity"
 
-	duration, err := time.ParseDuration(BHP_EXTERNAL_REQUEST_TIMEOUT)
+	duration, err := time.ParseDuration(ConfigInstance.ExternalRequestTimeout)
 	if err != nil {
 		return nil, fmt.Errorf("invalid timeout duration: %v", err)
 	}
@@ -56,8 +56,8 @@ reqHeaderLoop:
 				IdleConnTimeout:     90 * time.Second,
 			},
 			CheckRedirect: func(req *http.Request, via []*http.Request) error {
-				if len(via) >= BHP_EXTERNAL_REQUEST_REDIRECTS {
-					return fmt.Errorf("stopped after %d redirects", BHP_EXTERNAL_REQUEST_REDIRECTS)
+				if len(via) >= ConfigInstance.ExternalRequestRedirects {
+					return fmt.Errorf("stopped after %d redirects", ConfigInstance.ExternalRequestRedirects)
 				}
 				return nil
 			},
@@ -67,7 +67,7 @@ reqHeaderLoop:
 	// If a FlareSolverr instance is configured, use it to solve any
 	// anti-bot/Cloudflare challenge for this host and reuse the resulting
 	// cookies + User-Agent for the actual fetch below.
-	if strings.TrimSpace(BHP_FLARESOLVERR_URL) != "" {
+	if strings.TrimSpace(ConfigInstance.FlareSolverrURL) != "" {
 		solution, err := SolveWithFlareSolverr(url, duration)
 		if err != nil {
 			return nil, fmt.Errorf("flaresolverr failed to solve challenge for %s: %v", url, err)
@@ -90,7 +90,7 @@ reqHeaderLoop:
 	var data []byte
 	var lastErr error
 
-	for attempt := 0; attempt < BHP_EXTERNAL_REQUEST_RETRIES+1; attempt++ {
+	for attempt := 0; attempt < ConfigInstance.ExternalRequestRetries+1; attempt++ {
 		req, err := http.NewRequest("GET", url, nil)
 		if err != nil {
 			lastErr = err
@@ -140,7 +140,7 @@ reqHeaderLoop:
 	}
 	// Additional safety check - ensure we have valid response data
 	if resp == nil || data == nil {
-		return nil, fmt.Errorf("no valid response received after %d attempts", BHP_EXTERNAL_REQUEST_RETRIES+1)
+		return nil, fmt.Errorf("no valid response received after %d attempts", ConfigInstance.ExternalRequestRetries+1)
 	}
 
 	imageResponse := &ImageResponse{
