@@ -1,13 +1,13 @@
 FROM golang:latest AS builder
 
+WORKDIR /src
+
 ENV DEBIAN_FRONTEND=noninteractive
 
-RUN apt-get update && \
-  apt-get install -y \
-  libvips-dev && \
-  rm -rf /var/lib/apt/lists/*
-
-WORKDIR /src
+RUN apt-get update && apt-get install -y --no-install-recommends \
+  ca-certificates \
+  libvips-dev \
+  && rm -rf /var/lib/apt/lists/*
 
 RUN mkdir -p third_party && \
   go install github.com/cshum/vipsgen/cmd/vipsgen@latest && \
@@ -32,10 +32,13 @@ FROM debian:stable-slim
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-RUN apt-get update && \
-  apt-get install -y \
-  libvips && \
-  rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y --no-install-recommends \
+  ca-certificates \
+  libjemalloc2 \
+  libvips \
+  && rm -rf /var/lib/apt/lists/*
+
+ENV LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libjemalloc.so.2
 
 COPY --from=builder /bandwidth-hero-proxy /bandwidth-hero-proxy
 
