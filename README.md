@@ -136,6 +136,7 @@ Environment variables:
 | ----------------------------------- | ------------------- | --------------------------------------------------------------- |
 | `BHP_PORT`                          | `80`                | Server port                                                     |
 | `BHP_FLARESOLVERR_URL`              | `""`                | URL of the FlareSolverr instance to use for anti-bot challenges |
+| `BHP_VERBOSE_LOGGING`               | `false`             | Enable verbose logging                                          |
 | `BHP_VIPS_MAX_CONCURRENCY`          | Number of CPU cores | Vips max concurrent tasks                                       |
 | `BHP_FORCE_FORMAT`                  | `false`             | Force selected format, even if the output is bigger             |
 | `BHP_AUTO_DECREMENT_QUALITY`        | `false`             | Auto decrement quality if output is larger than input           |

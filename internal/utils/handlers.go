@@ -119,6 +119,36 @@ func ProxyHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Skip all of it unless BHP_VERBOSE_LOGGING=true.
+	compressedImageSizeStr := FormatSize(int64(compressedImageSize))
+	originalImageSizeStr := FormatSize(int64(originalImageSize))
+	savedSizeStr := FormatSize(int64(savedSize))
+	compressedImageSizePerc := CalcPercentage(int64(compressedImageSize), int64(originalImageSize))
+	savedSizePerc := CalcPercentage(int64(savedSize), int64(originalImageSize))
+
+	formatModifiers := make([]string, 0, 3)
+	if ConfigInstance.ForceFormat {
+		formatModifiers = append(formatModifiers, "forced")
+	}
+	if ConfigInstance.UseBestCompression {
+		formatModifiers = append(formatModifiers, "auto")
+	}
+	if isAnimated {
+		formatModifiers = append(formatModifiers, "animated")
+	}
+
+	formatInfo := ""
+	if len(formatModifiers) > 0 {
+		formatInfo = " (" + strings.Join(formatModifiers, ", ") + ")"
+	}
+
+	if !ConfigInstance.VerboseLogging {
+		log.Printf("%s -> %s%s | %d (%d) q | %s -> %s ( -%.1f%% )\n",
+			bhpParams.Url, compressedImage.Format, formatInfo, bhpParams.Quality, currentQuality,
+			originalImageSizeStr, compressedImageSizeStr, savedSizePerc)
+		return
+	}
+
 	var reqHeaders strings.Builder
 	sortedRequestHeaders := GetSortedKeys(imageResponse.RequestHeaders)
 	reqHeaders.Grow(len(sortedRequestHeaders) * 40) // Pre-allocate approximate size
@@ -144,29 +174,6 @@ func ProxyHandler(w http.ResponseWriter, r *http.Request) {
 		resHeaders.WriteString(": ")
 		resHeaders.WriteString(v)
 		resHeaders.WriteString("\n")
-	}
-
-	compressedImageSizeStr := FormatSize(int64(compressedImageSize))
-	originalImageSizeStr := FormatSize(int64(originalImageSize))
-	savedSizeStr := FormatSize(int64(savedSize))
-
-	compressedImageSizePerc := CalcPercentage(int64(compressedImageSize), int64(originalImageSize))
-	savedSizePerc := CalcPercentage(int64(savedSize), int64(originalImageSize))
-
-	formatModifiers := make([]string, 0, 3)
-	if ConfigInstance.ForceFormat {
-		formatModifiers = append(formatModifiers, "forced")
-	}
-	if ConfigInstance.UseBestCompression {
-		formatModifiers = append(formatModifiers, "auto")
-	}
-	if isAnimated {
-		formatModifiers = append(formatModifiers, "animated")
-	}
-
-	formatInfo := ""
-	if len(formatModifiers) > 0 {
-		formatInfo = " (" + strings.Join(formatModifiers, ", ") + ")"
 	}
 
 	reqHeadersStr := reqHeaders.String()

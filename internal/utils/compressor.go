@@ -30,7 +30,9 @@ func CompressImage(imageBytes []byte, options CompressImageOptions) (*CompressIm
 	vipsImage.RemoveICCProfile()
 
 	if options.Grayscale {
-		vipsImage.Colourspace(vips.InterpretationBW, nil)
+		if grayErr := vipsImage.Colourspace(vips.InterpretationBW, nil); grayErr != nil {
+			return nil, fmt.Errorf("failed to convert image to grayscale: %w", grayErr)
+		}
 	}
 
 	var compressedImageBytes []byte
@@ -94,7 +96,9 @@ func CompressImageWithAutoQualityDecrement(imageBytes []byte, options CompressIm
 			return compressedImage, currentQuality, nil // Return the first compressed image that is smaller than the original
 		}
 
-		if currentQuality < options.InitialQuality-10 { // Stop if we've decreased quality by 10
+		if currentQuality < options.InitialQuality-10 || currentQuality <= 5 {
+			// Stop if we've decreased quality by 10, or we're already at a floor
+			// where further decrements would hit invalid quality values (0 or negative)
 			// If no compression was better, return the original image
 			return nil, currentQuality, fmt.Errorf("could not compress image into smaller size than original")
 		}

@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"strings"
+	"sync"
 
 	"github.com/andybalholm/brotli"
 	"github.com/klauspost/compress/zstd"
@@ -147,13 +148,26 @@ func DecompressBrotli(data []byte) ([]byte, error) {
 	return result, nil
 }
 
+// Package-level zstd decoder, initialized once and reused for every request.
+var (
+	sharedZstdDecoder     *zstd.Decoder
+	sharedZstdDecoderOnce sync.Once
+	sharedZstdDecoderErr  error
+)
+
+func getZstdDecoder() (*zstd.Decoder, error) {
+	sharedZstdDecoderOnce.Do(func() {
+		sharedZstdDecoder, sharedZstdDecoderErr = zstd.NewReader(nil)
+	})
+	return sharedZstdDecoder, sharedZstdDecoderErr
+}
+
 // DecompressZstd decompresses zstandard-encoded data
 func DecompressZstd(data []byte) ([]byte, error) {
-	decoder, err := zstd.NewReader(nil)
+	decoder, err := getZstdDecoder()
 	if err != nil {
 		return nil, fmt.Errorf("failed to create zstd decoder: %v", err)
 	}
-	defer decoder.Close()
 
 	result, err := decoder.DecodeAll(data, nil)
 	if err != nil {

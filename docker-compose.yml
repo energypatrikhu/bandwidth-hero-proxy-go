@@ -6,6 +6,7 @@ services:
     # environment: # optional environment variables
     #   BHP_PORT: 80
     #   BHP_FLARESOLVERR_URL: "http://flaresolverr:8191"
+    #   BHP_VERBOSE_LOGGING: false
     #   BHP_VIPS_MAX_CONCURRENCY: 4 # default: number of CPU cores
     #   BHP_FORCE_FORMAT: false
     #   BHP_AUTO_DECREMENT_QUALITY: false

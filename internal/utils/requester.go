@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"bytes"
 	"fmt"
 	"io"
 	"net/http"
@@ -51,9 +52,17 @@ reqHeaderLoop:
 		httpClient = &http.Client{
 			Timeout: duration,
 			Transport: &http.Transport{
-				MaxIdleConns:        100,
-				MaxIdleConnsPerHost: 10,
-				IdleConnTimeout:     90 * time.Second,
+				MaxIdleConns:          200,
+				MaxIdleConnsPerHost:   32,
+				IdleConnTimeout:       90 * time.Second,
+				ResponseHeaderTimeout: 30 * time.Second,
+				ForceAttemptHTTP2:     true,
+				// We set our own Accept-Encoding above and decompress
+				// manually (DecompressResponse), so tell the transport not
+				// to also do its own transparent gzip handling/buffering.
+				DisableCompression: true,
+				WriteBufferSize:    64 * 1024,
+				ReadBufferSize:     64 * 1024,
 			},
 			CheckRedirect: func(req *http.Request, via []*http.Request) error {
 				if len(via) >= ConfigInstance.ExternalRequestRedirects {
@@ -114,9 +123,16 @@ reqHeaderLoop:
 			lastErr = fmt.Errorf("failed to fetch image: status %d", statusCode)
 			continue
 		}
-		defer resp.Body.Close()
 
-		respBody, err := io.ReadAll(resp.Body)
+		var respBody []byte
+		if resp.ContentLength > 0 {
+			buf := bytes.NewBuffer(make([]byte, 0, resp.ContentLength))
+			_, err = buf.ReadFrom(resp.Body)
+			respBody = buf.Bytes()
+		} else {
+			respBody, err = io.ReadAll(resp.Body)
+		}
+		resp.Body.Close()
 		if err != nil {
 			lastErr = err
 			continue

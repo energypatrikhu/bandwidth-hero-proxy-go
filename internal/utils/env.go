@@ -7,6 +7,7 @@ import (
 type Config struct {
 	Port            int    `env:"BHP_PORT"`
 	FlareSolverrURL string `env:"BHP_FLARESOLVERR_URL"`
+	VerboseLogging  bool   `env:"BHP_VERBOSE_LOGGING"`
 
 	VipsMaxConcurrency int `env:"BHP_VIPS_MAX_CONCURRENCY"`
 
@@ -44,6 +45,7 @@ var ConfigInstance = Config{
 	AutoDecrementQuality:  GetEnv("BHP_AUTO_DECREMENT_QUALITY", false),
 	UseBestCompression:    GetEnv("BHP_USE_BEST_COMPRESSION_FORMAT", false),
 	DisableAnimatedImages: GetEnv("BHP_DISABLE_ANIMATED_IMAGES", false),
+	VerboseLogging:        GetEnv("BHP_VERBOSE_LOGGING", false),
 
 	ExternalRequestTimeout:     GetEnv("BHP_EXTERNAL_REQUEST_TIMEOUT", "60s"),
 	ExternalRequestRetries:     GetEnv("BHP_EXTERNAL_REQUEST_RETRIES", 5),
