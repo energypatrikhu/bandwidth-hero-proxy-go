@@ -37,16 +37,16 @@ Image compression proxy server that reduces bandwidth usage by compressing image
       network_mode: bridge
       # environment: # optional environment variables
       #   BHP_PORT: 80
-      #   BHP_MAX_CONCURRENCY: 4 # default: number of CPU cores
+      #   BHP_FLARESOLVERR_URL: "http://flaresolverr:8191"
+      #   BHP_VIPS_MAX_CONCURRENCY: 4 # default: number of CPU cores
       #   BHP_FORCE_FORMAT: false
       #   BHP_AUTO_DECREMENT_QUALITY: false
       #   BHP_USE_BEST_COMPRESSION_FORMAT: true
+      #   BHP_DISABLE_ANIMATED_IMAGES: false
       #   BHP_EXTERNAL_REQUEST_TIMEOUT: "60s"
       #   BHP_EXTERNAL_REQUEST_RETRIES: 5
       #   BHP_EXTERNAL_REQUEST_REDIRECTS: 10
       #   BHP_EXTERNAL_REQUEST_OMIT_HEADERS: ""
-      #   BHP_FLARESOLVERR_URL: "http://flaresolverr:8191"
-      #   BHP_DISABLE_ANIMATED_IMAGES: false
       #   # Webp options
       #   BHP_WEBP_LOSSLESS: false
       #   BHP_WEBP_EFFORT: 6
@@ -135,16 +135,16 @@ Environment variables:
 | Variable                            | Default             | Description                                                     |
 | ----------------------------------- | ------------------- | --------------------------------------------------------------- |
 | `BHP_PORT`                          | `80`                | Server port                                                     |
-| `BHP_MAX_CONCURRENCY`               | Number of CPU cores | Max concurrent tasks                                            |
+| `BHP_FLARESOLVERR_URL`              | `""`                | URL of the FlareSolverr instance to use for anti-bot challenges |
+| `BHP_VIPS_MAX_CONCURRENCY`          | Number of CPU cores | Max concurrent tasks                                            |
 | `BHP_FORCE_FORMAT`                  | `false`             | Force selected format, even if the output is bigger             |
 | `BHP_AUTO_DECREMENT_QUALITY`        | `false`             | Auto decrement quality if output is larger than input           |
 | `BHP_USE_BEST_COMPRESSION_FORMAT`   | `false`             | Automatically choose WebP or JPEG based on compression ratio    |
+| `BHP_DISABLE_ANIMATED_IMAGES`       | `false`             | Disable compression of animated images                          |
 | `BHP_EXTERNAL_REQUEST_TIMEOUT`      | `60s`               | External request timeout                                        |
 | `BHP_EXTERNAL_REQUEST_RETRIES`      | `5`                 | Number of retries for external requests                         |
 | `BHP_EXTERNAL_REQUEST_REDIRECTS`    | `10`                | Maximum redirects for external requests                         |
 | `BHP_EXTERNAL_REQUEST_OMIT_HEADERS` | `[]`                | Headers to omit from external requests                          |
-| `BHP_FLARESOLVERR_URL`              | `""`                | URL of the FlareSolverr instance to use for anti-bot challenges |
-| `BHP_DISABLE_ANIMATED_IMAGES`       | `false`             | Disable compression of animated images                          |
 | `BHP_WEBP_LOSSLESS`                 | `false`             | Enable lossless compression                                     |
 | `BHP_WEBP_EFFORT`                   | `6`                 | Level of CPU effort to reduce file size                         |
 | `BHP_WEBP_SMART_SUBSAMPLE`          | `true`              | Enable high quality chroma subsampling                          |
