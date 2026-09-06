@@ -173,7 +173,7 @@ Example:
 
 ```bash
 export BHP_PORT=8080
-export BHP_ENABLE_AUTO_QUALITY_DECREMENT=true
+export BHP_AUTO_SELECT_FORMAT=true
 ./bandwidth-hero-proxy
 ```
 
