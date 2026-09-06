@@ -1,12 +1,11 @@
-FROM golang:trixie AS builder
+FROM golang:alpine AS builder
 
 WORKDIR /src
 
-ENV DEBIAN_FRONTEND=noninteractive
-
-RUN apt-get update && apt-get install -y --no-install-recommends \
-  ca-certificates \
-  libvips-dev \
+RUN apk add --no-cache \
+  build-base \
+  pkgconfig \
+  vips-dev \
   && rm -rf /var/lib/apt/lists/*
 
 RUN mkdir -p third_party && \
@@ -19,28 +18,19 @@ RUN go mod download
 COPY cmd cmd
 COPY internal internal
 
-ENV CGO_ENABLED=1
-
-RUN go build \
+RUN CGO_ENABLED=1 GOOS=linux \
+  go build \
   -v \
-  -tags=vips \
   -ldflags="-s -w" \
   -trimpath \
   -o /bandwidth-hero-proxy \
   ./cmd/main.go
 
-FROM debian:trixie-slim
+FROM alpine:latest
 
-ENV DEBIAN_FRONTEND=noninteractive
-
-RUN apt-get update && apt-get install -y --no-install-recommends \
-  ca-certificates \
-  libjemalloc2 \
-  libvips \
+RUN apk add --no-cache \
+  vips \
   && rm -rf /var/lib/apt/lists/*
-
-ENV LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libjemalloc.so.2
-ENV GOMEMLIMIT=512MiB
 
 COPY --from=builder /bandwidth-hero-proxy /bandwidth-hero-proxy
 
