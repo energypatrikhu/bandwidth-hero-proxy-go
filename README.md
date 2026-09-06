@@ -56,7 +56,7 @@ Image compression proxy server that reduces bandwidth usage by compressing image
       #   # Jpeg options
       #   BHP_JPEG_OPTIMIZE_CODING: true
       #   BHP_JPEG_OPTIMIZE_SCANS: true
-      #   BHP_JPEG_INTERLACE: false
+      #   BHP_JPEG_INTERLACE: true
       #   BHP_JPEG_TRELLIS_QUANT: true
       #   BHP_JPEG_OVERSHOOT_DERINGING: true
       #   BHP_JPEG_QUANT_TABLE: 3
@@ -153,7 +153,7 @@ Environment variables:
 | `BHP_WEBP_PASSES`                   | `1`                 | Number of entropy-analysis passes (in [1..10])                  |
 | `BHP_JPEG_OPTIMIZE_CODING`          | `true`              | Compute optimal Huffman coding tables                           |
 | `BHP_JPEG_OPTIMIZE_SCANS`           | `true`              | Split spectrum of DCT coefficients into separate scans          |
-| `BHP_JPEG_INTERLACE`                | `false`             | Generate an interlaced (progressive) jpeg                       |
+| `BHP_JPEG_INTERLACE`                | `true`              | Generate an interlaced (progressive) jpeg                       |
 | `BHP_JPEG_TRELLIS_QUANT`            | `true`              | Apply trellis quantisation to each 8x8 block                    |
 | `BHP_JPEG_OVERSHOOT_DERINGING`      | `true`              | Apply overshooting to samples with extreme values               |
 | `BHP_JPEG_QUANT_TABLE`              | `3`                 | Use predefined quantization table with given index              |

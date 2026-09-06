@@ -25,7 +25,7 @@ services:
     #   # Jpeg options
     #   BHP_JPEG_OPTIMIZE_CODING: true
     #   BHP_JPEG_OPTIMIZE_SCANS: true
-    #   BHP_JPEG_INTERLACE: false
+    #   BHP_JPEG_INTERLACE: true
     #   BHP_JPEG_TRELLIS_QUANT: true
     #   BHP_JPEG_OVERSHOOT_DERINGING: true
     #   BHP_JPEG_QUANT_TABLE: 3

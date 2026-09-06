@@ -60,7 +60,7 @@ var ConfigInstance = Config{
 
 	JPEGOptimizeCoding:     GetEnv("BHP_JPEG_OPTIMIZE_CODING", true),
 	JPEGOptimizeScans:      GetEnv("BHP_JPEG_OPTIMIZE_SCANS", true),
-	JPEGInterlace:          GetEnv("BHP_JPEG_INTERLACE", false),
+	JPEGInterlace:          GetEnv("BHP_JPEG_INTERLACE", true),
 	JPEGTrellisQuant:       GetEnv("BHP_JPEG_TRELLIS_QUANT", true),
 	JPEGOvershootDeringing: GetEnv("BHP_JPEG_OVERSHOOT_DERINGING", true),
 	JPEGQuantTable:         GetEnv("BHP_JPEG_QUANT_TABLE", 3),
