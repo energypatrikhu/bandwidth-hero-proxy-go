@@ -32,6 +32,10 @@ func main() {
 		log.Printf(" > %s: %v", name, value)
 	}
 
+	if utils.ConfigInstance.CustomFormat != "" && utils.ConfigInstance.UseBestCompression {
+		log.Panicln("Error: BHP_CUSTOM_FORMAT and BHP_USE_BEST_COMPRESSION_FORMAT cannot be both enabled at the same time.")
+	}
+
 	if utils.ConfigInstance.ForceFormat && utils.ConfigInstance.UseBestCompression {
 		log.Panicln("Error: BHP_FORCE_FORMAT and BHP_USE_BEST_COMPRESSION_FORMAT cannot be both enabled at the same time.")
 	}

@@ -9,6 +9,8 @@ services:
     #   BHP_VERBOSE_LOGGING: false
     #   BHP_VIPS_MAX_CONCURRENCY: 4 # default: number of CPU cores
     #   BHP_FORCE_FORMAT: false
+    #   BHP_CUSTOM_FORMAT: ""
+    #   BHP_TEST_FORMATS: ["jxl", "webp", "jpeg"]
     #   BHP_AUTO_DECREMENT_QUALITY: false
     #   BHP_USE_BEST_COMPRESSION_FORMAT: true
     #   BHP_DISABLE_ANIMATED_IMAGES: false
@@ -29,5 +31,9 @@ services:
     #   BHP_JPEG_TRELLIS_QUANT: true
     #   BHP_JPEG_OVERSHOOT_DERINGING: true
     #   BHP_JPEG_QUANT_TABLE: 3
+    #   # Jxl options
+    #   BHP_JXL_TIER: 0
+    #   BHP_JXL_EFFORT: 7
+    #   BHP_JXL_LOSSLESS: false
     ports:
       - 8080:80

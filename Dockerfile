@@ -6,6 +6,9 @@ RUN apk add --no-cache \
   build-base \
   pkgconfig \
   vips-dev \
+  libwebp-dev \
+  libjpeg-turbo-dev \
+  libjxl-dev \
   && rm -rf /var/lib/apt/lists/*
 
 RUN mkdir -p third_party && \
@@ -30,6 +33,9 @@ FROM alpine:latest
 
 RUN apk add --no-cache \
   vips \
+  libwebp \
+  libjpeg-turbo \
+  libjxl \
   && rm -rf /var/lib/apt/lists/*
 
 COPY --from=builder /bandwidth-hero-proxy /bandwidth-hero-proxy

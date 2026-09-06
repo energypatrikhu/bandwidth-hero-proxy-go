@@ -2,6 +2,7 @@ package utils
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/energypatrikhu/bandwidth-hero-proxy-go/third_party/vips"
 )
@@ -37,31 +38,46 @@ func CompressImage(imageBytes []byte, options CompressImageOptions) (*CompressIm
 
 	var compressedImageBytes []byte
 
+	if ConfigInstance.CustomFormat != "" {
+		options.Format = ConfigInstance.CustomFormat
+	}
+
 	switch options.Format {
 	case "webp":
 		compressedImageBytes, vipsError = vipsImage.WebpsaveBuffer(&vips.WebpsaveBufferOptions{
 			Q:    options.Quality,
 			Keep: vips.KeepNone,
 
-			Lossless:       ConfigInstance.WebPLossless,
-			Effort:         ConfigInstance.WebPEffort,
-			SmartSubsample: ConfigInstance.WebPSmartSubsample,
-			SmartDeblock:   ConfigInstance.WebPSmartDeblock,
-			Passes:         ConfigInstance.WebPPasses,
+			Lossless:       ConfigInstance.WebpLossless,
+			Effort:         ConfigInstance.WebpEffort,
+			SmartSubsample: ConfigInstance.WebpSmartSubsample,
+			SmartDeblock:   ConfigInstance.WebpSmartDeblock,
+			Passes:         ConfigInstance.WebpPasses,
 		})
 	case "jpeg":
 		compressedImageBytes, vipsError = vipsImage.JpegsaveBuffer(&vips.JpegsaveBufferOptions{
 			Q:             options.Quality,
 			Keep:          vips.KeepNone,
-			SubsampleMode: vips.SubsampleAuto,
+			SubsampleMode: vips.SubsampleOn,
 
-			OptimizeCoding:     ConfigInstance.JPEGOptimizeCoding,
-			OptimizeScans:      ConfigInstance.JPEGOptimizeScans,
-			Interlace:          ConfigInstance.JPEGInterlace,
-			TrellisQuant:       ConfigInstance.JPEGTrellisQuant,
-			OvershootDeringing: ConfigInstance.JPEGOvershootDeringing,
-			QuantTable:         ConfigInstance.JPEGQuantTable,
+			OptimizeCoding:     ConfigInstance.JpegOptimizeCoding,
+			OptimizeScans:      ConfigInstance.JpegOptimizeScans,
+			Interlace:          ConfigInstance.JpegInterlace,
+			TrellisQuant:       ConfigInstance.JpegTrellisQuant,
+			OvershootDeringing: ConfigInstance.JpegOvershootDeringing,
+			QuantTable:         ConfigInstance.JpegQuantTable,
 		})
+	case "jxl":
+		compressedImageBytes, vipsError = vipsImage.JxlsaveBuffer(&vips.JxlsaveBufferOptions{
+			Q:    options.Quality,
+			Keep: vips.KeepNone,
+
+			Tier:     ConfigInstance.JxlTier,
+			Effort:   ConfigInstance.JxlEffort,
+			Lossless: ConfigInstance.JxlLossless,
+		})
+	default:
+		return nil, fmt.Errorf("unsupported output format: %s", options.Format)
 	}
 
 	if vipsError != nil {
@@ -107,73 +123,66 @@ func CompressImageWithAutoQualityDecrement(imageBytes []byte, options CompressIm
 	}
 }
 
-// Compress to webp and jpeg concurrently using goroutines
+// Compress to all requested formats concurrently and return the smallest result
 func CompressImageToBestFormat(imageBytes []byte, options CompressImageToBestFormatOptions) (*CompressImageResult, error) {
+	formats := ConfigInstance.TestFormats
+	if len(formats) == 0 {
+		formats = []string{"jxl", "webp", "jpeg"} // defaults
+	}
+
 	type result struct {
 		resp *CompressImageResult
 		err  error
 	}
 
-	webpCh := make(chan result, 1)
-	jpegCh := make(chan result, 1)
+	resultCh := make(chan result, len(formats))
 
-	go func() {
-		webpImageBytes, errWebp := CompressImage(imageBytes, CompressImageOptions{
-			Format:      "webp",
-			InputFormat: options.InputFormat,
-			Grayscale:   options.Grayscale,
-			Quality:     options.Quality,
-			IsAnimated:  false,
-		})
-		webpCh <- result{resp: webpImageBytes, err: errWebp}
-	}()
-
-	go func() {
-		jpegImageBytes, errJpeg := CompressImage(imageBytes, CompressImageOptions{
-			Format:      "jpeg",
-			InputFormat: options.InputFormat,
-			Grayscale:   options.Grayscale,
-			Quality:     options.Quality,
-			IsAnimated:  false,
-		})
-		jpegCh <- result{resp: jpegImageBytes, err: errJpeg}
-	}()
-
-	var webpResp, jpegResp *CompressImageResult
-	var errWebp, errJpeg error
-
-	for range 2 {
-		select {
-		case res := <-webpCh:
-			webpResp = res.resp
-			errWebp = res.err
-		case res := <-jpegCh:
-			jpegResp = res.resp
-			errJpeg = res.err
-		}
+	for _, format := range formats {
+		go func() {
+			resp, err := CompressImage(imageBytes, CompressImageOptions{
+				Format:      format,
+				InputFormat: options.InputFormat,
+				Grayscale:   options.Grayscale,
+				Quality:     options.Quality,
+				IsAnimated:  false,
+			})
+			resultCh <- result{resp: resp, err: err}
+		}()
 	}
 
-	if errWebp != nil || errJpeg != nil {
-		return nil, fmt.Errorf("failed to compress image:\n\t%w\n\t%w", errWebp, errJpeg)
-	}
-
+	var errs []error
+	var best *CompressImageResult
 	originalSize := len(imageBytes)
 
-	webpSize := 0
-	if webpResp != nil {
-		webpSize = len(webpResp.Bytes)
-	}
-
-	jpegSize := 0
-	if jpegResp != nil {
-		jpegSize = len(jpegResp.Bytes)
-	}
-
-	if (webpResp != nil && webpSize < originalSize) || (jpegResp != nil && jpegSize < originalSize) {
-		if webpResp != nil && (jpegResp == nil || webpSize < jpegSize) {
-			return webpResp, nil
+	for range formats {
+		res := <-resultCh
+		if res.err != nil {
+			errs = append(errs, res.err)
+			continue
 		}
-		return jpegResp, nil
+		if res.resp == nil {
+			continue
+		}
+
+		if len(res.resp.Bytes) >= originalSize {
+			continue
+		}
+		if best == nil || len(res.resp.Bytes) < len(best.Bytes) {
+			best = res.resp
+		}
+	}
+
+	if best != nil {
+		return best, nil
+	}
+
+	if len(errs) > 0 {
+		var errStr strings.Builder
+		errStr.WriteString("failed to compress image:")
+		for _, e := range errs {
+			errStr.WriteString("\n\t" + e.Error())
+		}
+		return nil, fmt.Errorf("%s", errStr.String())
 	}
 	return nil, fmt.Errorf("could not compress image into smaller size than original")
 }
