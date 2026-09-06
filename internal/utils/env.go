@@ -56,7 +56,7 @@ var ConfigInstance = Config{
 	WebPEffort:         GetEnv("BHP_WEBP_EFFORT", 4),
 	WebPSmartSubsample: GetEnv("BHP_WEBP_SMART_SUBSAMPLE", true),
 	WebPSmartDeblock:   GetEnv("BHP_WEBP_SMART_DEBLOCK", true),
-	WebPPasses:         GetEnv("BHP_WEBP_PASSES", 2),
+	WebPPasses:         GetEnv("BHP_WEBP_PASSES", 1),
 
 	JPEGOptimizeCoding:     GetEnv("BHP_JPEG_OPTIMIZE_CODING", true),
 	JPEGOptimizeScans:      GetEnv("BHP_JPEG_OPTIMIZE_SCANS", true),
