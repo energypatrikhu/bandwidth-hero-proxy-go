@@ -9,7 +9,7 @@ services:
     #   BHP_VERBOSE_LOGGING: false
     #   BHP_VIPS_MAX_CONCURRENCY: 4 # default: number of CPU cores
     #   BHP_FORCE_FORMAT: false
-    #   BHP_CUSTOM_FORMAT: ""
+    #   BHP_CUSTOM_FORMAT: "" # Available formats: "webp", "jpeg", "jxl"
     #   BHP_TEST_FORMATS: ["jxl", "webp", "jpeg"]
     #   BHP_AUTO_DECREMENT_QUALITY: false
     #   BHP_USE_BEST_COMPRESSION_FORMAT: true

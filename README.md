@@ -40,7 +40,7 @@ Image compression proxy server that reduces bandwidth usage by compressing image
       #   BHP_FLARESOLVERR_URL: "http://flaresolverr:8191"
       #   BHP_VIPS_MAX_CONCURRENCY: 4 # default: number of CPU cores
       #   BHP_FORCE_FORMAT: false
-      #   BHP_CUSTOM_FORMAT: ""
+      #   BHP_CUSTOM_FORMAT: "" # Available formats: "webp", "jpeg", "jxl"
       #   BHP_TEST_FORMATS: ["jxl", "webp", "jpeg"]
       #   BHP_AUTO_DECREMENT_QUALITY: false
       #   BHP_USE_BEST_COMPRESSION_FORMAT: true
@@ -138,36 +138,36 @@ http://localhost/?jpg=1&quality=60&url=https://example.com/image.png
 
 Environment variables:
 
-| Variable                            | Default                   | Description                                                     |
-| ----------------------------------- | ------------------------- | --------------------------------------------------------------- |
-| `BHP_PORT`                          | `80`                      | Server port                                                     |
-| `BHP_FLARESOLVERR_URL`              | `""`                      | URL of the FlareSolverr instance to use for anti-bot challenges |
-| `BHP_VERBOSE_LOGGING`               | `false`                   | Enable verbose logging                                          |
-| `BHP_VIPS_MAX_CONCURRENCY`          | Number of CPU cores       | Vips max concurrent tasks                                       |
-| `BHP_FORCE_FORMAT`                  | `false`                   | Force selected format, even if the output is bigger             |
-| `BHP_CUSTOM_FORMAT`                 | `""`                      | Custom format to use for compression                            |
-| `BHP_TEST_FORMATS`                  | `["jxl", "webp", "jpeg"]` | List of formats to test for best compression                    |
-| `BHP_AUTO_DECREMENT_QUALITY`        | `false`                   | Auto decrement quality if output is larger than input           |
-| `BHP_USE_BEST_COMPRESSION_FORMAT`   | `false`                   | Automatically choose WebP or JPEG based on compression ratio    |
-| `BHP_DISABLE_ANIMATED_IMAGES`       | `false`                   | Disable compression of animated images                          |
-| `BHP_EXTERNAL_REQUEST_TIMEOUT`      | `60s`                     | External request timeout                                        |
-| `BHP_EXTERNAL_REQUEST_RETRIES`      | `5`                       | Number of retries for external requests                         |
-| `BHP_EXTERNAL_REQUEST_REDIRECTS`    | `10`                      | Maximum redirects for external requests                         |
-| `BHP_EXTERNAL_REQUEST_OMIT_HEADERS` | `[]`                      | Headers to omit from external requests                          |
-| `BHP_WEBP_LOSSLESS`                 | `false`                   | Enable lossless compression                                     |
-| `BHP_WEBP_EFFORT`                   | `4`                       | Level of CPU effort to reduce file size                         |
-| `BHP_WEBP_SMART_SUBSAMPLE`          | `true`                    | Enable high quality chroma subsampling                          |
-| `BHP_WEBP_SMART_DEBLOCK`            | `true`                    | Enable auto-adjusting of the deblocking filter                  |
-| `BHP_WEBP_PASSES`                   | `1`                       | Number of entropy-analysis passes (in [1..10])                  |
-| `BHP_JPEG_OPTIMIZE_CODING`          | `true`                    | Compute optimal Huffman coding tables                           |
-| `BHP_JPEG_OPTIMIZE_SCANS`           | `true`                    | Split spectrum of DCT coefficients into separate scans          |
-| `BHP_JPEG_INTERLACE`                | `true`                    | Generate an interlaced (progressive) jpeg                       |
-| `BHP_JPEG_TRELLIS_QUANT`            | `true`                    | Apply trellis quantisation to each 8x8 block                    |
-| `BHP_JPEG_OVERSHOOT_DERINGING`      | `true`                    | Apply overshooting to samples with extreme values               |
-| `BHP_JPEG_QUANT_TABLE`              | `3`                       | Use predefined quantization table with given index              |
-| `BHP_JXL_TIER`                      | `0`                       | Decode speed tier (in [0..4])                                   |
-| `BHP_JXL_EFFORT`                    | `7`                       | Encoding effort (in [1..9])                                     |
-| `BHP_JXL_LOSSLESS`                  | `false`                   | Enable lossless compression                                     |
+| Variable                            | Default                   | Description                                                             |
+| ----------------------------------- | ------------------------- | ----------------------------------------------------------------------- |
+| `BHP_PORT`                          | `80`                      | Server port                                                             |
+| `BHP_FLARESOLVERR_URL`              | `""`                      | URL of the FlareSolverr instance to use for anti-bot challenges         |
+| `BHP_VERBOSE_LOGGING`               | `false`                   | Enable verbose logging                                                  |
+| `BHP_VIPS_MAX_CONCURRENCY`          | Number of CPU cores       | Vips max concurrent tasks                                               |
+| `BHP_FORCE_FORMAT`                  | `false`                   | Force selected format, even if the output is bigger                     |
+| `BHP_CUSTOM_FORMAT`                 | `""`                      | Custom format to use for compression (available: "webp", "jpeg", "jxl") |
+| `BHP_TEST_FORMATS`                  | `["jxl", "webp", "jpeg"]` | List of formats to test for best compression                            |
+| `BHP_AUTO_DECREMENT_QUALITY`        | `false`                   | Auto decrement quality if output is larger than input                   |
+| `BHP_USE_BEST_COMPRESSION_FORMAT`   | `false`                   | Automatically choose WebP or JPEG based on compression ratio            |
+| `BHP_DISABLE_ANIMATED_IMAGES`       | `false`                   | Disable compression of animated images                                  |
+| `BHP_EXTERNAL_REQUEST_TIMEOUT`      | `60s`                     | External request timeout                                                |
+| `BHP_EXTERNAL_REQUEST_RETRIES`      | `5`                       | Number of retries for external requests                                 |
+| `BHP_EXTERNAL_REQUEST_REDIRECTS`    | `10`                      | Maximum redirects for external requests                                 |
+| `BHP_EXTERNAL_REQUEST_OMIT_HEADERS` | `[]`                      | Headers to omit from external requests                                  |
+| `BHP_WEBP_LOSSLESS`                 | `false`                   | Enable lossless compression                                             |
+| `BHP_WEBP_EFFORT`                   | `4`                       | Level of CPU effort to reduce file size (in [1..6])                     |
+| `BHP_WEBP_SMART_SUBSAMPLE`          | `true`                    | Enable high quality chroma subsampling                                  |
+| `BHP_WEBP_SMART_DEBLOCK`            | `true`                    | Enable auto-adjusting of the deblocking filter                          |
+| `BHP_WEBP_PASSES`                   | `1`                       | Number of entropy-analysis passes (in [1..10])                          |
+| `BHP_JPEG_OPTIMIZE_CODING`          | `true`                    | Compute optimal Huffman coding tables                                   |
+| `BHP_JPEG_OPTIMIZE_SCANS`           | `true`                    | Split spectrum of DCT coefficients into separate scans                  |
+| `BHP_JPEG_INTERLACE`                | `true`                    | Generate an interlaced (progressive) jpeg                               |
+| `BHP_JPEG_TRELLIS_QUANT`            | `true`                    | Apply trellis quantisation to each 8x8 block                            |
+| `BHP_JPEG_OVERSHOOT_DERINGING`      | `true`                    | Apply overshooting to samples with extreme values                       |
+| `BHP_JPEG_QUANT_TABLE`              | `3`                       | Use predefined quantization table with given index (in [0..8])          |
+| `BHP_JXL_TIER`                      | `0`                       | Decode speed tier (in [0..4])                                           |
+| `BHP_JXL_EFFORT`                    | `7`                       | Encoding effort (in [1..9])                                             |
+| `BHP_JXL_LOSSLESS`                  | `false`                   | Enable lossless compression                                             |
 
 Example:
 

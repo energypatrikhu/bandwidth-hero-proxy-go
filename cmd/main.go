@@ -10,6 +10,12 @@ import (
 	"github.com/energypatrikhu/bandwidth-hero-proxy-go/third_party/vips"
 )
 
+var validFormats = map[string]bool{
+	"webp": true,
+	"jpeg": true,
+	"jxl":  true,
+}
+
 func main() {
 	log.Println("Starting Bandwidth Hero Proxy...")
 
@@ -36,12 +42,45 @@ func main() {
 		log.Panicln("Error: BHP_CUSTOM_FORMAT and BHP_USE_BEST_COMPRESSION_FORMAT cannot be both enabled at the same time.")
 	}
 
+	if utils.ConfigInstance.UseBestCompression && utils.ConfigInstance.AutoDecrementQuality {
+		log.Panicln("Error: BHP_USE_BEST_COMPRESSION_FORMAT and BHP_AUTO_DECREMENT_QUALITY cannot be both enabled at the same time.")
+	}
+
 	if utils.ConfigInstance.ForceFormat && utils.ConfigInstance.UseBestCompression {
 		log.Panicln("Error: BHP_FORCE_FORMAT and BHP_USE_BEST_COMPRESSION_FORMAT cannot be both enabled at the same time.")
 	}
 
-	if utils.ConfigInstance.UseBestCompression && utils.ConfigInstance.AutoDecrementQuality {
-		log.Panicln("Error: BHP_USE_BEST_COMPRESSION_FORMAT and BHP_AUTO_DECREMENT_QUALITY cannot be both enabled at the same time.")
+	if utils.ConfigInstance.CustomFormat != "" {
+		if !validFormats[utils.ConfigInstance.CustomFormat] {
+			log.Panicf("Error: BHP_CUSTOM_FORMAT must be one of the following: webp, jpeg, jxl. Got: %s", utils.ConfigInstance.CustomFormat)
+		}
+	}
+
+	for _, format := range utils.ConfigInstance.TestFormats {
+		if !validFormats[format] {
+			log.Panicf("Error: BHP_TEST_FORMATS must contain only the following formats: webp, jpeg, jxl. Got: %s", format)
+		}
+	}
+
+	// WEBP options validation
+	if utils.ConfigInstance.WebpEffort < 1 || utils.ConfigInstance.WebpEffort > 6 {
+		log.Panicln("Error: BHP_WEBP_EFFORT must be between 1 and 6.")
+	}
+	if utils.ConfigInstance.WebpPasses < 1 || utils.ConfigInstance.WebpPasses > 10 {
+		log.Panicln("Error: BHP_WEBP_PASSES must be between 1 and 10.")
+	}
+
+	// JPEG options validation
+	if utils.ConfigInstance.JpegQuantTable < 0 || utils.ConfigInstance.JpegQuantTable > 8 {
+		log.Panicln("Error: BHP_JPEG_QUANT_TABLE must be between 0 and 8.")
+	}
+
+	// JXL options validation
+	if utils.ConfigInstance.JxlTier < 0 || utils.ConfigInstance.JxlTier > 4 {
+		log.Panicln("Error: BHP_JXL_TIER must be between 0 and 4.")
+	}
+	if utils.ConfigInstance.JxlEffort < 1 || utils.ConfigInstance.JxlEffort > 9 {
+		log.Panicln("Error: BHP_JXL_EFFORT must be between 1 and 9.")
 	}
 
 	vips.SetLogging(nil, 0) // Suppress vips logs
