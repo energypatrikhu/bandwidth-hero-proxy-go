@@ -38,27 +38,27 @@ func main() {
 		log.Printf(" > %s: %v", name, value)
 	}
 
-	if utils.ConfigInstance.CustomFormat != "" && utils.ConfigInstance.UseBestCompression {
-		log.Panicln("Error: BHP_CUSTOM_FORMAT and BHP_USE_BEST_COMPRESSION_FORMAT cannot be both enabled at the same time.")
+	if utils.ConfigInstance.TargetFormat != "" && utils.ConfigInstance.AutoSelectFormat {
+		log.Panicln("Error: BHP_TARGET_FORMAT and BHP_AUTO_SELECT_FORMAT cannot be both enabled at the same time.")
 	}
 
-	if utils.ConfigInstance.UseBestCompression && utils.ConfigInstance.AutoDecrementQuality {
-		log.Panicln("Error: BHP_USE_BEST_COMPRESSION_FORMAT and BHP_AUTO_DECREMENT_QUALITY cannot be both enabled at the same time.")
+	if utils.ConfigInstance.AutoSelectFormat && utils.ConfigInstance.AutoReduceQuality {
+		log.Panicln("Error: BHP_AUTO_SELECT_FORMAT and BHP_AUTO_REDUCE_QUALITY cannot be both enabled at the same time.")
 	}
 
-	if utils.ConfigInstance.ForceFormat && utils.ConfigInstance.UseBestCompression {
-		log.Panicln("Error: BHP_FORCE_FORMAT and BHP_USE_BEST_COMPRESSION_FORMAT cannot be both enabled at the same time.")
+	if utils.ConfigInstance.IgnoreSizeCheck && utils.ConfigInstance.AutoSelectFormat {
+		log.Panicln("Error: BHP_IGNORE_SIZE_CHECK and BHP_AUTO_SELECT_FORMAT cannot be both enabled at the same time.")
 	}
 
-	if utils.ConfigInstance.CustomFormat != "" {
-		if !validFormats[utils.ConfigInstance.CustomFormat] {
-			log.Panicf("Error: BHP_CUSTOM_FORMAT must be one of the following: webp, jpeg, jxl. Got: %s", utils.ConfigInstance.CustomFormat)
+	if utils.ConfigInstance.TargetFormat != "" {
+		if !validFormats[utils.ConfigInstance.TargetFormat] {
+			log.Panicf("Error: BHP_TARGET_FORMAT must be one of the following: webp, jpeg, jxl. Got: %s", utils.ConfigInstance.TargetFormat)
 		}
 	}
 
-	for _, format := range utils.ConfigInstance.TestFormats {
+	for _, format := range utils.ConfigInstance.AutoSelectFormatList {
 		if !validFormats[format] {
-			log.Panicf("Error: BHP_TEST_FORMATS must contain only the following formats: webp, jpeg, jxl. Got: %s", format)
+			log.Panicf("Error: BHP_AUTO_SELECT_FORMAT_LIST must contain only the following formats: webp, jpeg, jxl. Got: %s", format)
 		}
 	}
 

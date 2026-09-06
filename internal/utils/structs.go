@@ -30,7 +30,7 @@ type CompressImageOptions struct {
 	Quality     int
 }
 
-type CompressImageWithAutoQualityDecrementOptions struct {
+type CompressImageWithAutoQualityReducerOptions struct {
 	InputFormat       string
 	Format            string
 	Grayscale         bool
@@ -38,7 +38,7 @@ type CompressImageWithAutoQualityDecrementOptions struct {
 	OriginalImageSize int
 }
 
-type CompressImageToBestFormatOptions struct {
+type CompressImageToSmallestFormatOptions struct {
 	InputFormat string
 	Grayscale   bool
 	Quality     int

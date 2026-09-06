@@ -43,14 +43,14 @@ func ProxyHandler(w http.ResponseWriter, r *http.Request) {
 
 	currentQuality := bhpParams.Quality
 	var compressedImage *CompressImageResult
-	if ConfigInstance.UseBestCompression && !isAnimated {
-		compressedImage, err = CompressImageToBestFormat(imageResponse.Bytes, CompressImageToBestFormatOptions{
+	if ConfigInstance.AutoSelectFormat && !isAnimated {
+		compressedImage, err = CompressImageToSmallestFormat(imageResponse.Bytes, CompressImageToSmallestFormatOptions{
 			InputFormat: imageFormat,
 			Grayscale:   bhpParams.Grayscale,
 			Quality:     bhpParams.Quality,
 		})
-	} else if ConfigInstance.AutoDecrementQuality && !isAnimated {
-		compressedImage, currentQuality, err = CompressImageWithAutoQualityDecrement(imageResponse.Bytes, CompressImageWithAutoQualityDecrementOptions{
+	} else if ConfigInstance.AutoReduceQuality && !isAnimated {
+		compressedImage, currentQuality, err = CompressImageWithAutoQualityReducer(imageResponse.Bytes, CompressImageWithAutoQualityReducerOptions{
 			InputFormat:       imageFormat,
 			Format:            bhpParams.Format,
 			Grayscale:         bhpParams.Grayscale,
@@ -75,7 +75,7 @@ func ProxyHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !ConfigInstance.ForceFormat && compressedImage.Format == "" {
+	if !ConfigInstance.IgnoreSizeCheck && compressedImage.Format == "" {
 		w.Header().Set("Location", bhpParams.Url)
 		w.WriteHeader(http.StatusFound)
 
@@ -87,7 +87,7 @@ func ProxyHandler(w http.ResponseWriter, r *http.Request) {
 	compressedImageSize := len(compressedImage.Bytes)
 	savedSize := originalImageSize - compressedImageSize
 
-	if !ConfigInstance.ForceFormat && savedSize <= 0 {
+	if !ConfigInstance.IgnoreSizeCheck && savedSize <= 0 {
 		w.Header().Set("Location", bhpParams.Url)
 		w.WriteHeader(http.StatusFound)
 
@@ -127,10 +127,10 @@ func ProxyHandler(w http.ResponseWriter, r *http.Request) {
 	savedSizePerc := CalcPercentage(int64(savedSize), int64(originalImageSize))
 
 	formatModifiers := make([]string, 0, 3)
-	if ConfigInstance.ForceFormat {
+	if ConfigInstance.IgnoreSizeCheck {
 		formatModifiers = append(formatModifiers, "forced")
 	}
-	if ConfigInstance.UseBestCompression {
+	if ConfigInstance.AutoSelectFormat {
 		formatModifiers = append(formatModifiers, "auto")
 	}
 	if isAnimated {

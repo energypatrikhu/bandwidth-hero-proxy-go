@@ -24,7 +24,7 @@ func CompressImage(imageBytes []byte, options CompressImageOptions) (*CompressIm
 	}
 	defer vipsImage.Close()
 
-	if ConfigInstance.DisableAnimatedImages && vipsImage.Pages() > 1 {
+	if ConfigInstance.PassthroughAnimated && vipsImage.Pages() > 1 {
 		return nil, fmt.Errorf("failed to use image buffer, animated images are disabled")
 	}
 
@@ -38,8 +38,8 @@ func CompressImage(imageBytes []byte, options CompressImageOptions) (*CompressIm
 
 	var compressedImageBytes []byte
 
-	if ConfigInstance.CustomFormat != "" {
-		options.Format = ConfigInstance.CustomFormat
+	if ConfigInstance.TargetFormat != "" {
+		options.Format = ConfigInstance.TargetFormat
 	}
 
 	switch options.Format {
@@ -87,7 +87,7 @@ func CompressImage(imageBytes []byte, options CompressImageOptions) (*CompressIm
 	return &CompressImageResult{Bytes: compressedImageBytes, Format: options.Format}, nil
 }
 
-func CompressImageWithAutoQualityDecrement(imageBytes []byte, options CompressImageWithAutoQualityDecrementOptions) (*CompressImageResult, int, error) {
+func CompressImageWithAutoQualityReducer(imageBytes []byte, options CompressImageWithAutoQualityReducerOptions) (*CompressImageResult, int, error) {
 	currentQuality := options.InitialQuality
 	var compressedImage *CompressImageResult
 	var err error
@@ -124,8 +124,8 @@ func CompressImageWithAutoQualityDecrement(imageBytes []byte, options CompressIm
 }
 
 // Compress to all requested formats concurrently and return the smallest result
-func CompressImageToBestFormat(imageBytes []byte, options CompressImageToBestFormatOptions) (*CompressImageResult, error) {
-	formats := ConfigInstance.TestFormats
+func CompressImageToSmallestFormat(imageBytes []byte, options CompressImageToSmallestFormatOptions) (*CompressImageResult, error) {
+	formats := ConfigInstance.AutoSelectFormatList
 	if len(formats) == 0 {
 		formats = []string{"jxl", "webp", "jpeg"} // defaults
 	}
