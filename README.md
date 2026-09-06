@@ -49,10 +49,10 @@ Image compression proxy server that reduces bandwidth usage by compressing image
       #   BHP_EXTERNAL_REQUEST_OMIT_HEADERS: ""
       #   # Webp options
       #   BHP_WEBP_LOSSLESS: false
-      #   BHP_WEBP_EFFORT: 6
+      #   BHP_WEBP_EFFORT: 4
       #   BHP_WEBP_SMART_SUBSAMPLE: true
       #   BHP_WEBP_SMART_DEBLOCK: true
-      #   BHP_WEBP_PASSES: 10
+      #   BHP_WEBP_PASSES: 1
       #   # Jpeg options
       #   BHP_JPEG_OPTIMIZE_CODING: true
       #   BHP_JPEG_OPTIMIZE_SCANS: true
@@ -150,7 +150,7 @@ Environment variables:
 | `BHP_WEBP_EFFORT`                   | `4`                 | Level of CPU effort to reduce file size                         |
 | `BHP_WEBP_SMART_SUBSAMPLE`          | `true`              | Enable high quality chroma subsampling                          |
 | `BHP_WEBP_SMART_DEBLOCK`            | `true`              | Enable auto-adjusting of the deblocking filter                  |
-| `BHP_WEBP_PASSES`                   | `2`                 | Number of entropy-analysis passes (in [1..10])                  |
+| `BHP_WEBP_PASSES`                   | `1`                 | Number of entropy-analysis passes (in [1..10])                  |
 | `BHP_JPEG_OPTIMIZE_CODING`          | `true`              | Compute optimal Huffman coding tables                           |
 | `BHP_JPEG_OPTIMIZE_SCANS`           | `true`              | Split spectrum of DCT coefficients into separate scans          |
 | `BHP_JPEG_INTERLACE`                | `false`             | Generate an interlaced (progressive) jpeg                       |
